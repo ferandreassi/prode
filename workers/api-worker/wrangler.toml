@@ -1,0 +1,15 @@
+name = "api-worker"
+main = "src/index.ts"
+compatibility_date = "2024-05-12"
+
+[vars]
+JWT_SECRET = "prode_u_super_secret_key_for_jwt_auth_mundial_2026"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "prode_u_db"
+database_id = "local-prode-u-db"
+
+[[r2_buckets]]
+binding = "IMAGES"
+bucket_name = "prode-u-images"

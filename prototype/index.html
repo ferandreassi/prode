@@ -1,0 +1,1094 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PRODE-U — Predictions World Cup 2026</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  
+  <!-- Icons (FontAwesome for speed & clean looks) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Gartic Phone Style CSS Link -->
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- Main Container -->
+  <div class="app">
+    
+    <!-- Gartic style toast -->
+    <div id="copyToast" class="toast">
+      <i class="fa-solid fa-check"></i> Código copiado con éxito
+    </div>
+
+    <!-- 1. SPLASH SCREEN -->
+    <div id="screen-splash" class="screen active" style="justify-content: center; align-items: center; padding: 30px; text-align: center;">
+      <!-- Confetti-like floating dots -->
+      <div class="dots">
+        <div class="dot" style="width: 12px; height: 12px; background: var(--yellow); top: 15%; left: 10%;"></div>
+        <div class="dot" style="width: 18px; height: 18px; background: var(--blue); top: 25%; right: 15%; animation-delay: 1s;"></div>
+        <div class="dot" style="width: 14px; height: 14px; background: var(--pink); bottom: 20%; left: 20%; animation-delay: 2s;"></div>
+        <div class="dot" style="width: 16px; height: 16px; background: var(--green); bottom: 15%; right: 25%; animation-delay: 1.5s;"></div>
+      </div>
+      
+      <!-- Mascot Bouncing -->
+      <div class="mascot" style="font-size: 90px; margin-bottom: 20px;">⚽👾</div>
+      
+      <h1 class="title-fun">PRODE-U</h1>
+      <p class="subtitle-fun">MUNDIAL 2026</p>
+      
+      <button class="btn btn-yellow" style="max-width: 240px; margin-top: 40px;" onclick="navigateTo('screen-auth')">
+        INGRESAR <i class="fa-solid fa-chevron-right"></i>
+      </button>
+    </div>
+
+    <!-- 2. AUTH SCREEN -->
+    <div id="screen-auth" class="screen" style="justify-content: center; padding: 40px 24px;">
+      <div style="text-align: center; margin-bottom: 28px;">
+        <h1 class="title-fun" style="font-size: 36px; margin-bottom: 4px;">PRODE-U</h1>
+        <p class="subtitle-fun">Crea tu cuenta & predice</p>
+      </div>
+
+      <div class="tabs">
+        <div class="tab active" onclick="switchAuthTab('login')">LOGIN</div>
+        <div class="tab" onclick="switchAuthTab('register')">REGISTRO</div>
+      </div>
+
+      <!-- Login Form -->
+      <form id="form-login" class="auth-form active" onsubmit="event.preventDefault(); handleLogin();" style="display: flex; flex-direction: column; gap: 16px;">
+        <div style="display: flex; flex-direction: column; gap: 6px;">
+          <label style="display: block; font-family: var(--font-fun); font-size: 13px; letter-spacing: 0.5px; color: var(--yellow); text-transform: uppercase;">NICKNAME</label>
+          <input type="text" class="input" placeholder="Ej: LeoMessi10" required id="login-nick">
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 6px;">
+          <label style="display: block; font-family: var(--font-fun); font-size: 13px; letter-spacing: 0.5px; color: var(--yellow); text-transform: uppercase;">CONTRASEÑA</label>
+          <input type="password" class="input" placeholder="••••••••" required id="login-pass">
+        </div>
+        <button type="submit" class="btn btn-green" style="margin-top: 10px;">
+          INICIAR SESIÓN <i class="fa-solid fa-right-to-bracket"></i>
+        </button>
+      </form>
+
+      <!-- Register Form -->
+      <form id="form-register" class="auth-form" onsubmit="event.preventDefault(); handleRegister();" style="display: none; flex-direction: column; gap: 16px;">
+        <div style="display: flex; flex-direction: column; gap: 6px;">
+          <label style="display: block; font-family: var(--font-fun); font-size: 13px; letter-spacing: 0.5px; color: var(--yellow); text-transform: uppercase;">NICKNAME</label>
+          <input type="text" class="input" placeholder="Elige un apodo único" required id="reg-nick">
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 6px;">
+          <label style="display: block; font-family: var(--font-fun); font-size: 13px; letter-spacing: 0.5px; color: var(--yellow); text-transform: uppercase;">CONTRASEÑA</label>
+          <input type="password" class="input" placeholder="Mínimo 6 caracteres" required id="reg-pass">
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 6px;">
+          <label style="display: block; font-family: var(--font-fun); font-size: 13px; letter-spacing: 0.5px; color: var(--yellow); text-transform: uppercase;">CONFIRMAR CONTRASEÑA</label>
+          <input type="password" class="input" placeholder="Repite tu contraseña" required id="reg-pass-confirm">
+        </div>
+        <button type="submit" class="btn btn-green" style="margin-top: 10px;">
+          REGISTRARSE <i class="fa-solid fa-user-plus"></i>
+        </button>
+      </form>
+    </div>
+
+    <!-- 3. DASHBOARD / HOME -->
+    <div id="screen-dashboard" class="screen">
+      <!-- User Welcome Header -->
+      <div class="header">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <img src="https://api.dicebear.com/7.x/bottts/svg?seed=Messi10" alt="avatar" id="header-avatar" class="avatar" style="width: 44px; height: 44px;">
+          <div>
+            <p style="font-size: 11px; color: var(--text-muted); font-weight: 800; text-transform: uppercase;">Hola de nuevo,</p>
+            <h2 id="header-username" style="margin: 0; line-height: 1;">Messi10</h2>
+          </div>
+        </div>
+        <div class="wiggle" style="background: rgba(255,255,255,0.12); border: 2px solid rgba(255,255,255,0.2); border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; cursor: pointer; position: relative;">
+          <i class="fa-solid fa-bell" style="font-size: 16px;"></i>
+          <div style="position: absolute; top: 0; right: 0; width: 10px; height: 10px; background-color: var(--red); border-radius: 50%; border: 2px solid #501e8c;"></div>
+        </div>
+      </div>
+
+      <div class="scroll">
+        
+        <!-- Next Match Card widget -->
+        <div class="card" style="position: relative; overflow: hidden; background: rgba(255,255,255,0.12);">
+          <span class="badge badge-open" style="position: absolute; top: 12px; right: 12px;">MAÑANA</span>
+          <h3 style="font-family: var(--font-fun); font-size: 14px; color: var(--yellow); letter-spacing: 1px; margin-bottom: 12px;"><i class="fa-solid fa-bolt"></i> PRÓXIMO PARTIDO</h3>
+          
+          <div style="display: flex; align-items: center; justify-content: space-between; margin: 15px 0;">
+            <div style="display: flex; flex-direction: column; align-items: center; flex: 1;">
+              <span class="flag">🇦🇷</span>
+              <span style="font-family: var(--font-fun); font-size: 14px; margin-top: 5px;">Argentina</span>
+            </div>
+            <div style="font-family: var(--font-fun); font-size: 16px; color: var(--text-muted); background: rgba(0,0,0,0.15); padding: 5px 12px; border-radius: 12px;">VS</div>
+            <div style="display: flex; flex-direction: column; align-items: center; flex: 1;">
+              <span class="flag">🇧🇷</span>
+              <span style="font-family: var(--font-fun); font-size: 14px; margin-top: 5px;">Brasil</span>
+            </div>
+          </div>
+
+          <div class="countdown" style="margin-bottom: 15px;">
+            <div class="cd-item">
+              <span class="cd-val">18</span>
+              <span class="cd-lbl">Horas</span>
+            </div>
+            <div style="font-family: var(--font-fun); font-size: 22px; color: var(--yellow); line-height: 1;">:</div>
+            <div class="cd-item">
+              <span class="cd-val">42</span>
+              <span class="cd-lbl">Mins</span>
+            </div>
+            <div style="font-family: var(--font-fun); font-size: 22px; color: var(--yellow); line-height: 1;">:</div>
+            <div class="cd-item">
+              <span class="cd-val">05</span>
+              <span class="cd-lbl">Segs</span>
+            </div>
+          </div>
+
+          <button class="btn btn-green" onclick="openPredictModal('Argentina', '🇦🇷', 'Brasil', '🇧🇷', 'next-match-widget')">
+            HACER PREDICCIÓN <i class="fa-solid fa-pen-fancy"></i>
+          </button>
+        </div>
+
+        <!-- Groups lists -->
+        <div class="section">
+          <span>MIS GRUPOS</span>
+          <a href="#" onclick="switchNav('groups')">Ver Todos</a>
+        </div>
+
+        <div id="dashboard-groups-list">
+          <div class="card" onclick="openGroupDetail('Los Pibes del Silo', 'SILO9823')" style="display: flex; align-items: center; justify-content: space-between; cursor: pointer;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <div class="grp-img" style="background: var(--blue);">LP</div>
+              <div>
+                <h4 style="font-family: var(--font-fun); font-size: 15px;">Los Pibes del Silo</h4>
+                <p style="font-size: 12px; color: var(--text-muted);">18 miembros</p>
+              </div>
+            </div>
+            <span class="badge badge-open">#3</span>
+          </div>
+
+          <div class="card" onclick="openGroupDetail('Fútbol Coders', 'CODE1234')" style="display: flex; align-items: center; justify-content: space-between; cursor: pointer;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <div class="grp-img" style="background: var(--pink);">FC</div>
+              <div>
+                <h4 style="font-family: var(--font-fun); font-size: 15px;">Fútbol Coders</h4>
+                <p style="font-size: 12px; color: var(--text-muted);">8 miembros</p>
+              </div>
+            </div>
+            <span class="badge badge-open">#1</span>
+          </div>
+        </div>
+
+        <!-- Global Summary -->
+        <div class="section">ESTADÍSTICAS GLOBALES</div>
+        <div class="card stats">
+          <div class="stat">
+            <div class="stat-v">28</div>
+            <div class="stat-l">PUNTOS</div>
+          </div>
+          <div class="stat">
+            <div class="stat-v" style="color: var(--green);">4</div>
+            <div class="stat-l">EXACTOS</div>
+          </div>
+          <div class="stat">
+            <div class="stat-v" style="color: var(--yellow);">12/16</div>
+            <div class="stat-l">PREDICHOS</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- 4. PREDICTIONS HUB -->
+    <div id="screen-predictions" class="screen">
+      <div class="header">
+        <h2>PREDICCIONES</h2>
+        <i class="fa-solid fa-gamepad" style="color: var(--yellow); font-size: 20px;"></i>
+      </div>
+      
+      <div class="scroll">
+        <div class="chips">
+          <div class="chip active" onclick="filterPredictions('all', this)">TODOS</div>
+          <div class="chip" onclick="filterPredictions('pending', this)">PENDIENTES</div>
+          <div class="chip" onclick="filterPredictions('done', this)">REALIZADOS</div>
+        </div>
+
+        <div id="predictions-list">
+          <div class="round-lbl">Fase de Grupos — Fecha 1</div>
+          
+          <!-- Match 1 -->
+          <div class="card match-predict-card" data-status="pending" style="display: flex; flex-direction: column; gap: 10px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; font-size: 11px; font-weight: 700; color: var(--text-muted);">
+              <span>20 JUNIO — 21:00</span>
+              <span class="badge badge-open">Cierra en 12h</span>
+            </div>
+            <div style="display: flex; align-items: center; justify-content: space-between;">
+              <div style="display: flex; align-items: center; gap: 8px; flex: 1;">
+                <span class="flag-sm">🇺🇸</span>
+                <span style="font-weight: 700;">USA</span>
+              </div>
+              
+              <button class="btn btn-yellow" style="width: auto; padding: 6px 14px; font-size: 11px;" onclick="openPredictModal('USA', '🇺🇸', 'Marruecos', '🇲🇦', 'usa-mar')">
+                PREDECIR
+              </button>
+
+              <div style="display: flex; align-items: center; gap: 8px; flex: 1; justify-content: flex-end;">
+                <span style="font-weight: 700;">MAR</span>
+                <span class="flag-sm">🇲🇦</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Match 2 (Already predicted) -->
+          <div class="card match-predict-card" data-status="done" style="display: flex; flex-direction: column; gap: 10px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; font-size: 11px; font-weight: 700; color: var(--text-muted);">
+              <span>21 JUNIO — 15:00</span>
+              <span class="badge badge-open">Cierra en 1d</span>
+            </div>
+            <div style="display: flex; align-items: center; justify-content: space-between;">
+              <div style="display: flex; align-items: center; gap: 8px; flex: 1;">
+                <span class="flag-sm">🇪🇸</span>
+                <span style="font-weight: 700;">ESP</span>
+              </div>
+              
+              <div class="score-box wiggle" style="cursor: pointer;" onclick="openPredictModal('España', '🇪🇸', 'Japón', '🇯🇵', 'esp-jap', 2, 1)">
+                <span class="score-val">2</span>
+                <span class="score-dash">-</span>
+                <span class="score-val">1</span>
+                <i class="fa-solid fa-pen" style="font-size: 9px; margin-left: 4px; color: var(--text-muted);"></i>
+              </div>
+
+              <div style="display: flex; align-items: center; gap: 8px; flex: 1; justify-content: flex-end;">
+                <span style="font-weight: 700;">JPN</span>
+                <span class="flag-sm">🇯🇵</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Match 3 (Finished & Graded) -->
+          <div class="card match-predict-card" data-status="done" style="opacity: 0.85; display: flex; flex-direction: column; gap: 10px; position: relative; padding-bottom: 45px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; font-size: 11px; font-weight: 700; color: var(--text-muted);">
+              <span>18 JUNIO — FINALIZADO</span>
+              <span class="badge badge-done">Terminado (3-0)</span>
+            </div>
+            <div style="display: flex; align-items: center; justify-content: space-between;">
+              <div style="display: flex; align-items: center; gap: 8px; flex: 1;">
+                <span class="flag-sm">🇫🇷</span>
+                <span style="font-weight: 700;">FRA</span>
+              </div>
+              
+              <div class="score-box" style="opacity: 0.8;">
+                <span class="score-val">3</span>
+                <span class="score-dash">-</span>
+                <span class="score-val">0</span>
+              </div>
+
+              <div style="display: flex; align-items: center; gap: 8px; flex: 1; justify-content: flex-end;">
+                <span style="font-weight: 700;">AUS</span>
+                <span class="flag-sm">🇦🇺</span>
+              </div>
+            </div>
+            <div class="pts-tag pts-7" style="position: absolute; bottom: 12px; right: 18px;">+7 pts (Exacto)</div>
+          </div>
+
+          <!-- Match 4 (Draw result, Winner check) -->
+          <div class="card match-predict-card" data-status="done" style="opacity: 0.85; display: flex; flex-direction: column; gap: 10px; position: relative; padding-bottom: 45px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; font-size: 11px; font-weight: 700; color: var(--text-muted);">
+              <span>18 JUNIO — FINALIZADO</span>
+              <span class="badge badge-done">Terminado (1-1)</span>
+            </div>
+            <div style="display: flex; align-items: center; justify-content: space-between;">
+              <div style="display: flex; align-items: center; gap: 8px; flex: 1;">
+                <span class="flag-sm">🇩🇪</span>
+                <span style="font-weight: 700;">GER</span>
+              </div>
+              
+              <div class="score-box" style="opacity: 0.8;">
+                <span class="score-val">2</span>
+                <span class="score-dash">-</span>
+                <span class="score-val">2</span>
+              </div>
+
+              <div style="display: flex; align-items: center; gap: 8px; flex: 1; justify-content: flex-end;">
+                <span style="font-weight: 700;">MEX</span>
+                <span class="flag-sm">🇲🇽</span>
+              </div>
+            </div>
+            <div class="pts-tag pts-3" style="position: absolute; bottom: 12px; right: 18px;">+3 pts (Empate)</div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- 5. GROUPS HUB -->
+    <div id="screen-groups" class="screen">
+      <div class="header">
+        <h2>GRUPOS</h2>
+        <i class="fa-solid fa-users" style="color: var(--yellow); font-size: 20px;"></i>
+      </div>
+      
+      <div class="scroll">
+        <div style="display: flex; gap: 12px; margin-bottom: 20px;">
+          <button class="btn btn-yellow" onclick="openCreateGroupModal()"><i class="fa-solid fa-plus"></i> Crear</button>
+          <button class="btn btn-blue" onclick="openJoinGroupModal()"><i class="fa-solid fa-right-to-bracket"></i> Unirse</button>
+        </div>
+
+        <div class="section">MIS GRUPOS DE COMPETICIÓN</div>
+        
+        <div id="groups-full-list">
+          <!-- Item 1 -->
+          <div class="card" onclick="openGroupDetail('Los Pibes del Silo', 'SILO9823')" style="display: flex; align-items: center; justify-content: space-between; cursor: pointer;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <div class="grp-img" style="background: var(--blue);">LP</div>
+              <div>
+                <h4 style="font-family: var(--font-fun); font-size: 15px;">Los Pibes del Silo</h4>
+                <p style="font-size: 12px; color: var(--text-muted);">18 miembros • Límite 50</p>
+              </div>
+            </div>
+            <span class="badge badge-open">#3</span>
+          </div>
+
+          <!-- Item 2 -->
+          <div class="card" onclick="openGroupDetail('Fútbol Coders', 'CODE1234')" style="display: flex; align-items: center; justify-content: space-between; cursor: pointer;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <div class="grp-img" style="background: var(--pink);">FC</div>
+              <div>
+                <h4 style="font-family: var(--font-fun); font-size: 15px;">Fútbol Coders</h4>
+                <p style="font-size: 12px; color: var(--text-muted);">8 miembros • Límite 50</p>
+              </div>
+            </div>
+            <span class="badge badge-open">#1</span>
+          </div>
+
+          <!-- Item 3 -->
+          <div class="card" onclick="openGroupDetail('La Scaloneta del 26', 'SCAL2026')" style="display: flex; align-items: center; justify-content: space-between; cursor: pointer;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <div class="grp-img" style="background: var(--orange);">LS</div>
+              <div>
+                <h4 style="font-family: var(--font-fun); font-size: 15px;">La Scaloneta del 26</h4>
+                <p style="font-size: 12px; color: var(--text-muted);">42 miembros • Límite 50</p>
+              </div>
+            </div>
+            <span class="badge badge-open">#14</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 6. GROUP DETAIL SCREEN -->
+    <div id="screen-group-detail" class="screen">
+      <div class="header">
+        <button class="close-btn" onclick="navigateTo('screen-groups')" style="width: auto; height: auto; padding: 5px 12px; border-radius: 12px;"><i class="fa-solid fa-arrow-left"></i></button>
+        <h2>Detalle del Grupo</h2>
+        <i class="fa-solid fa-gear wiggle" style="color: var(--yellow); cursor: pointer; font-size: 18px;" onclick="openGroupSettings()"></i>
+      </div>
+      
+      <div class="scroll" style="padding-top: 15px;">
+        <div class="card" style="display: flex; align-items: center; gap: 18px; background: rgba(255,255,255,0.12); margin-bottom: 20px;">
+          <div class="grp-img" id="group-detail-avatar" style="width: 72px; height: 72px; font-size: 26px; border-radius: 20px; background: var(--pink); border-width: 3px;">LP</div>
+          <div>
+            <h3 id="group-detail-name" style="font-family: var(--font-fun); font-size: 20px; margin-bottom: 6px;">Los Pibes del Silo</h3>
+            <div class="badge badge-open" onclick="copyGroupCode(document.getElementById('group-detail-code').innerText)" style="cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+              <span>CÓDIGO: <strong id="group-detail-code" style="letter-spacing: 0.5px;">SILO9823</strong></span>
+              <i class="fa-regular fa-copy"></i>
+            </div>
+          </div>
+        </div>
+
+        <div class="tabs">
+          <div class="tab active" onclick="switchGroupTab('ranking', this)">RANKING</div>
+          <div class="tab" onclick="switchGroupTab('matches', this)">PARTIDOS</div>
+          <div class="tab" onclick="switchGroupTab('members', this)">MIEMBROS</div>
+        </div>
+
+        <!-- Tab contents -->
+        <div id="group-tab-content">
+          <!-- Ranking Sub-Tab -->
+          <div id="group-sub-ranking" style="display: flex; flex-direction: column;">
+            <div class="lb-row">
+              <div class="lb-left">
+                <span class="lb-rank">1</span>
+                <div class="avatar" style="font-size: 16px; border: none; box-shadow: none;">👑</div>
+                <span style="font-weight: 700;">KunAguero19</span>
+              </div>
+              <span class="lb-pts">42 pts</span>
+            </div>
+
+            <div class="lb-row">
+              <div class="lb-left">
+                <span class="lb-rank">2</span>
+                <div class="avatar" style="font-size: 16px; border: none; box-shadow: none;">⚡</div>
+                <span style="font-weight: 700;">DibuMartinez</span>
+              </div>
+              <span class="lb-pts">36 pts</span>
+            </div>
+
+            <div class="lb-row me">
+              <div class="lb-left">
+                <span class="lb-rank">3</span>
+                <div class="avatar" style="font-size: 16px; border: none; box-shadow: none;">👾</div>
+                <span style="font-weight: 700;">Messi10 (Tú)</span>
+              </div>
+              <span class="lb-pts">28 pts</span>
+            </div>
+
+            <div class="lb-row">
+              <div class="lb-left">
+                <span class="lb-rank">4</span>
+                <div class="avatar" style="font-size: 16px; border: none; box-shadow: none;">⚽</div>
+                <span style="font-weight: 700;">ScaloniTech</span>
+              </div>
+              <span class="lb-pts">24 pts</span>
+            </div>
+
+            <div class="lb-row">
+              <div class="lb-left">
+                <span class="lb-rank">5</span>
+                <div class="avatar" style="font-size: 16px; border: none; box-shadow: none;">🛡️</div>
+                <span style="font-weight: 700;">CutiRomero</span>
+              </div>
+              <span class="lb-pts">21 pts</span>
+            </div>
+          </div>
+
+          <!-- Matches Sub-Tab -->
+          <div id="group-sub-matches" style="display: none;">
+            <p style="font-size: 11px; font-weight: 700; color: var(--text-muted); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.5px;">Predicciones de este grupo para el próx. partido:</p>
+            
+            <div class="card" style="background: rgba(255,255,255,0.12); border-color: rgba(255,255,255,0.25);">
+              <div style="display: flex; justify-content: space-between; font-size: 11px; font-weight: 800; color: var(--yellow); margin-bottom: 10px; text-transform: uppercase;">
+                <span>ARG VS BRA</span>
+                <span>Cierra en 18h</span>
+              </div>
+              <div style="display: flex; flex-direction: column; gap: 8px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; font-size: 13px; font-weight: 700;">
+                  <span>KunAguero19</span>
+                  <span class="score-box" style="padding: 4px 10px;"><strong class="score-val" style="font-size: 14px;">2</strong><span class="score-dash">-</span><strong class="score-val" style="font-size: 14px;">0</strong></span>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; font-size: 13px; font-weight: 700; border-top: 1px solid var(--border); padding-top: 8px;">
+                  <span>DibuMartinez</span>
+                  <span class="score-box" style="padding: 4px 10px;"><strong class="score-val" style="font-size: 14px;">1</strong><span class="score-dash">-</span><strong class="score-val" style="font-size: 14px;">0</strong></span>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; font-size: 13px; font-weight: 700; border-top: 1px solid var(--border); padding-top: 8px;">
+                  <span>Messi10 (Tú)</span>
+                  <span class="badge badge-open" style="padding: 4px 12px;">Pendiente</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Members Sub-Tab -->
+          <div id="group-sub-members" style="display: none;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+              <span style="font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Lista de Integrantes (5/50)</span>
+              <span class="badge badge-open" style="background: rgba(0, 214, 143, 0.25);">Eres Admin</span>
+            </div>
+            
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+              <div class="lb-row" style="background: rgba(255,255,255,0.05); margin-bottom: 0;">
+                <div class="lb-left">
+                  <div class="avatar" style="font-size: 16px; border: none; box-shadow: none;">👾</div>
+                  <span style="font-weight: 700;">Messi10 (Tú)</span>
+                </div>
+                <span style="font-size: 11px; font-weight: 700; color: var(--text-muted);">Creador</span>
+              </div>
+
+              <div class="lb-row" style="background: rgba(255,255,255,0.05); margin-bottom: 0;">
+                <div class="lb-left">
+                  <div class="avatar" style="font-size: 16px; border: none; box-shadow: none;">👑</div>
+                  <span style="font-weight: 700;">KunAguero19</span>
+                </div>
+                <button class="btn btn-pink" style="width: auto; padding: 4px 10px; font-size: 10px; text-transform: none; border-radius: 8px;" onclick="kickMember('KunAguero19')">
+                  Expulsar
+                </button>
+              </div>
+
+              <div class="lb-row" style="background: rgba(255,255,255,0.05); margin-bottom: 0;">
+                <div class="lb-left">
+                  <div class="avatar" style="font-size: 16px; border: none; box-shadow: none;">⚡</div>
+                  <span style="font-weight: 700;">DibuMartinez</span>
+                </div>
+                <button class="btn btn-pink" style="width: auto; padding: 4px 10px; font-size: 10px; text-transform: none; border-radius: 8px;" onclick="kickMember('DibuMartinez')">
+                  Expulsar
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 7. PROFILE SCREEN -->
+    <div id="screen-profile" class="screen">
+      <div class="header">
+        <h2>PERFIL</h2>
+        <i class="fa-solid fa-user-gear" style="color: var(--yellow); font-size: 20px;"></i>
+      </div>
+      
+      <div class="scroll">
+        <div style="display: flex; flex-direction: column; align-items: center; padding: 20px 0; position: relative;">
+          <div style="position: relative; margin-bottom: 12px;">
+            <img src="https://api.dicebear.com/7.x/bottts/svg?seed=Messi10" alt="avatar" id="profile-avatar-img" class="avatar" style="width: 90px; height: 90px; border-width: 4px;">
+            <div class="wiggle" onclick="changeAvatar()" style="position: absolute; bottom: 0; right: 0; width: 28px; height: 28px; border-radius: 50%; background: var(--yellow); border: 2px solid rgba(80, 30, 140, 0.95); color: #5D4037; display: flex; align-items: center; justify-content: center; font-size: 12px; cursor: pointer;">
+              <i class="fa-solid fa-camera"></i>
+            </div>
+          </div>
+          <h3 id="profile-username" style="font-family: var(--font-fun); font-size: 22px;">Messi10</h3>
+          <p style="font-size: 12px; color: var(--text-muted); font-weight: 700;">Miembro desde Mayo 2026</p>
+        </div>
+
+        <div class="stats" style="margin-bottom: 24px;">
+          <div class="stat">
+            <div class="stat-v">28</div>
+            <div class="stat-l">Pts Totales</div>
+          </div>
+          <div class="stat">
+            <div class="stat-v" style="color: var(--yellow);">4</div>
+            <div class="stat-l">Exactos (7p)</div>
+          </div>
+          <div class="stat">
+            <div class="stat-v" style="color: var(--blue);">12</div>
+            <div class="stat-l">Partidos</div>
+          </div>
+        </div>
+
+        <div class="card" style="padding: 8px 0; background: rgba(255,255,255,0.12);">
+          <div style="padding: 12px 18px; display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid rgba(255,255,255,0.08); cursor: pointer;" onclick="changeLanguage()">
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <i class="fa-solid fa-language" style="color: var(--yellow); width: 16px; font-size: 16px;"></i>
+              <span style="font-weight: 700; font-size: 14px;">Idioma / Language</span>
+            </div>
+            <span style="font-family: var(--font-fun); font-size: 13px; color: var(--yellow);" id="lbl-lang">Español</span>
+          </div>
+
+          <div style="padding: 12px 18px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; color: var(--red);" onclick="logout()">
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <i class="fa-solid fa-power-off" style="width: 16px; font-size: 16px;"></i>
+              <span style="font-weight: 700; font-size: 14px;">Cerrar Sesión</span>
+            </div>
+            <i class="fa-solid fa-chevron-right" style="font-size: 12px;"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ----------------------------------------- -->
+    <!-- OVERLAYS, MODALS & DIALOGS                -->
+    <!-- ----------------------------------------- -->
+
+    <!-- PREDICTION MODAL -->
+    <div id="predictModal" class="modal" onclick="closePredictModal(event)">
+      <div class="modal-body">
+        <div class="modal-top">
+          <h3>HACER PREDICCIÓN</h3>
+          <button class="close-btn" onclick="closePredictModal()"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+
+        <p style="font-family: var(--font-fun); font-size: 12px; color: var(--yellow); text-align: center; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 20px;">Mundial 2026 — Grupo A</p>
+        
+        <div style="display: flex; align-items: center; justify-content: space-around; margin: 20px 0 35px 0;">
+          <!-- Team Home -->
+          <div style="display: flex; flex-direction: column; align-items: center; gap: 10px;">
+            <div class="flag" id="modal-home-flag" style="font-size: 48px;">🇦🇷</div>
+            <span style="font-family: var(--font-fun); font-size: 14px;" id="modal-home-name">Argentina</span>
+            <div class="spinner">
+              <button class="spin-btn" onclick="changeScore('home', -1)"><i class="fa-solid fa-minus"></i></button>
+              <span class="spin-val" id="spin-home">0</span>
+              <button class="spin-btn" onclick="changeScore('home', 1)"><i class="fa-solid fa-plus"></i></button>
+            </div>
+          </div>
+
+          <div style="font-family: var(--font-fun); font-size: 24px; color: var(--text-muted);">VS</div>
+
+          <!-- Team Away -->
+          <div style="display: flex; flex-direction: column; align-items: center; gap: 10px;">
+            <div class="flag" id="modal-away-flag" style="font-size: 48px;">🇧🇷</div>
+            <span style="font-family: var(--font-fun); font-size: 14px;" id="modal-away-name">Brasil</span>
+            <div class="spinner">
+              <button class="spin-btn" onclick="changeScore('away', -1)"><i class="fa-solid fa-minus"></i></button>
+              <span class="spin-val" id="spin-away">0</span>
+              <button class="spin-btn" onclick="changeScore('away', 1)"><i class="fa-solid fa-plus"></i></button>
+            </div>
+          </div>
+        </div>
+
+        <button class="btn btn-yellow" onclick="submitPrediction()">
+          GUARDAR PREDICCIÓN <i class="fa-solid fa-circle-check"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- CREATE GROUP MODAL -->
+    <div id="createGroupModal" class="modal" onclick="closeCreateGroupModal(event)">
+      <div class="modal-body">
+        <div class="modal-top">
+          <h3>CREAR NUEVO GRUPO</h3>
+          <button class="close-btn" onclick="closeCreateGroupModal()"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 16px;">
+          <div style="display: flex; flex-direction: column; gap: 6px;">
+            <label style="display: block; font-family: var(--font-fun); font-size: 13px; color: var(--yellow); letter-spacing: 0.5px; text-transform: uppercase;">NOMBRE DEL GRUPO</label>
+            <input type="text" class="input" placeholder="Ej: La Scaloneta de la Oficina" id="new-group-name">
+          </div>
+          
+          <div style="display: flex; flex-direction: column; gap: 6px;">
+            <label style="display: block; font-family: var(--font-fun); font-size: 13px; color: var(--yellow); letter-spacing: 0.5px; text-transform: uppercase;">LÍMITE DE MIEMBROS</label>
+            <input type="text" class="input" value="50 participantes (Máximo)" disabled style="opacity: 0.6;">
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 6px;">
+            <label style="display: block; font-family: var(--font-fun); font-size: 13px; color: var(--yellow); letter-spacing: 0.5px; text-transform: uppercase;">IMAGEN DEL GRUPO (OPCIONAL)</label>
+            <button class="btn btn-ghost" style="font-family: var(--font-body); font-weight: 700; font-size: 13px;" onclick="alert('Se abrirá la carga a Cloudflare R2')">
+              <i class="fa-solid fa-cloud-arrow-up"></i> Subir foto a R2
+            </button>
+          </div>
+
+          <button class="btn btn-yellow" style="margin-top: 10px;" onclick="submitCreateGroup()">
+            CREAR GRUPO <i class="fa-solid fa-check"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- JOIN GROUP MODAL -->
+    <div id="joinGroupModal" class="modal" onclick="closeJoinGroupModal(event)">
+      <div class="modal-body">
+        <div class="modal-top">
+          <h3>UNIRSE A GRUPO</h3>
+          <button class="close-btn" onclick="closeJoinGroupModal()"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 16px;">
+          <p style="font-size: 12px; color: var(--text-muted); text-align: center; font-weight: 700;">
+            Ingresa el código permanente de 8 dígitos para unirte al grupo de tus amigos.
+          </p>
+
+          <div style="display: flex; flex-direction: column; gap: 6px;">
+            <label style="display: block; font-family: var(--font-fun); font-size: 13px; color: var(--yellow); letter-spacing: 0.5px; text-transform: uppercase;">CÓDIGO DE INVITACIÓN</label>
+            <input type="text" class="input" placeholder="Ej: ABCD1234" id="join-group-code" maxlength="8" style="text-transform: uppercase; font-family: var(--font-fun); letter-spacing: 2px; text-align: center; font-size: 20px;">
+          </div>
+
+          <button class="btn btn-yellow" style="margin-top: 10px;" onclick="submitJoinGroup()">
+            UNIRSE AHORA <i class="fa-solid fa-right-to-bracket"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Group Settings / Admin Panel Modal -->
+    <div id="groupSettingsModal" class="modal" onclick="closeGroupSettings(event)">
+      <div class="modal-body">
+        <div class="modal-top">
+          <h3>AJUSTES DEL GRUPO</h3>
+          <button class="close-btn" onclick="closeGroupSettings()"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 16px;">
+          <div style="display: flex; flex-direction: column; gap: 6px;">
+            <label style="display: block; font-family: var(--font-fun); font-size: 13px; color: var(--yellow); letter-spacing: 0.5px; text-transform: uppercase;">EDITAR NOMBRE DEL GRUPO</label>
+            <input type="text" class="input" value="Los Pibes del Silo" id="edit-group-name">
+          </div>
+          
+          <button class="btn btn-yellow" onclick="saveGroupSettings()">
+            GUARDAR CAMBIOS <i class="fa-solid fa-floppy-disk"></i>
+          </button>
+          
+          <button class="btn btn-pink" onclick="deleteGroup()">
+            ELIMINAR GRUPO <i class="fa-solid fa-trash-can"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Nav bar -->
+    <div class="nav" id="app-bottom-nav">
+      <div class="nav-item active" onclick="switchNav('dashboard')">
+        <span><i class="fa-solid fa-house-chimney"></i></span>
+        Inicio
+      </div>
+      <div class="nav-item" onclick="switchNav('predictions')">
+        <span><i class="fa-solid fa-circle-question"></i></span>
+        Predicciones
+      </div>
+      <div class="nav-item" onclick="switchNav('groups')">
+        <span><i class="fa-solid fa-users"></i></span>
+        Grupos
+      </div>
+      <div class="nav-item" onclick="switchNav('profile')">
+        <span><i class="fa-solid fa-user"></i></span>
+        Perfil
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    // App State Management (Mock)
+    let currentScreen = 'screen-splash';
+    let currentUser = {
+      nickname: 'Messi10',
+      points: 28,
+      avatarSeed: 'Messi10'
+    };
+
+    let activeMatchTargetId = null; // tracking which card receives prediction score
+
+    // Navigation function
+    function navigateTo(screenId) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      const target = document.getElementById(screenId);
+      if (target) {
+        target.classList.add('active');
+        currentScreen = screenId;
+      }
+      
+      // Bottom navigation display control
+      const bottomNav = document.getElementById('app-bottom-nav');
+      if (screenId !== 'screen-splash' && screenId !== 'screen-auth') {
+        bottomNav.style.display = 'flex';
+      } else {
+        bottomNav.style.display = 'none';
+      }
+    }
+
+    // Switch between bottom navigation items
+    function switchNav(route) {
+      // Update nav active styling
+      document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+      let activeIdx = 0;
+      if (route === 'dashboard') activeIdx = 0;
+      else if (route === 'predictions') activeIdx = 1;
+      else if (route === 'groups') activeIdx = 2;
+      else if (route === 'profile') activeIdx = 3;
+      
+      document.querySelectorAll('.nav-item')[activeIdx].classList.add('active');
+      navigateTo('screen-' + route);
+    }
+
+    // Switch login/register tabs
+    function switchAuthTab(tab) {
+      const authTabs = document.querySelector('#screen-auth .tabs');
+      authTabs.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.auth-form').forEach(f => f.style.display = 'none');
+      
+      if (tab === 'login') {
+        authTabs.querySelectorAll('.tab')[0].classList.add('active');
+        document.getElementById('form-login').style.display = 'flex';
+      } else {
+        authTabs.querySelectorAll('.tab')[1].classList.add('active');
+        document.getElementById('form-register').style.display = 'flex';
+      }
+    }
+
+    // Auth flows
+    function handleLogin() {
+      const nick = document.getElementById('login-nick').value || 'User';
+      currentUser.nickname = nick;
+      currentUser.avatarSeed = nick;
+      
+      // Update DOM
+      document.getElementById('header-username').innerText = nick;
+      document.getElementById('profile-username').innerText = nick;
+      document.getElementById('header-avatar').src = `https://api.dicebear.com/7.x/bottts/svg?seed=${nick}`;
+      document.getElementById('profile-avatar-img').src = `https://api.dicebear.com/7.x/bottts/svg?seed=${nick}`;
+      
+      navigateTo('screen-dashboard');
+    }
+
+    function handleRegister() {
+      const nick = document.getElementById('reg-nick').value;
+      const pass = document.getElementById('reg-pass').value;
+      const passConf = document.getElementById('reg-pass-confirm').value;
+      
+      if (pass !== passConf) {
+        alert('Las contraseñas no coinciden');
+        return;
+      }
+      
+      currentUser.nickname = nick;
+      currentUser.avatarSeed = nick;
+      
+      // Update DOM
+      document.getElementById('header-username').innerText = nick;
+      document.getElementById('profile-username').innerText = nick;
+      document.getElementById('header-avatar').src = `https://api.dicebear.com/7.x/bottts/svg?seed=${nick}`;
+      document.getElementById('profile-avatar-img').src = `https://api.dicebear.com/7.x/bottts/svg?seed=${nick}`;
+      
+      navigateTo('screen-dashboard');
+    }
+
+    // Predict Modal functionality
+    function openPredictModal(homeName, homeFlag, awayName, awayFlag, targetCardId, currentHome = 0, currentAway = 0) {
+      document.getElementById('modal-home-name').innerText = homeName;
+      document.getElementById('modal-home-flag').innerText = homeFlag;
+      document.getElementById('modal-away-name').innerText = awayName;
+      document.getElementById('modal-away-flag').innerText = awayFlag;
+      
+      document.getElementById('spin-home').innerText = currentHome;
+      document.getElementById('spin-away').innerText = currentAway;
+      
+      activeMatchTargetId = targetCardId;
+      document.getElementById('predictModal').classList.add('active');
+    }
+
+    function closePredictModal(e) {
+      if (!e || e.target === document.getElementById('predictModal') || e.target.closest('.close-btn')) {
+        document.getElementById('predictModal').classList.remove('active');
+      }
+    }
+
+    function changeScore(team, val) {
+      const el = document.getElementById('spin-' + team);
+      let currentVal = parseInt(el.innerText);
+      currentVal = Math.max(0, currentVal + val);
+      el.innerText = currentVal;
+    }
+
+    function submitPrediction() {
+      const homeVal = document.getElementById('spin-home').innerText;
+      const awayVal = document.getElementById('spin-away').innerText;
+      
+      // Simple mock update in the list depending on which card triggered this modal
+      if (activeMatchTargetId === 'usa-mar') {
+        const card = document.querySelector('[onclick*="usa-mar"]').parentNode;
+        card.innerHTML = `
+          <div style="display: flex; align-items: center; gap: 8px; flex: 1;">
+            <span class="flag-sm">🇺🇸</span>
+            <span style="font-weight: 700;">USA</span>
+          </div>
+          
+          <div class="score-box wiggle" style="cursor: pointer;" onclick="openPredictModal('USA', '🇺🇸', 'Marruecos', '🇲🇦', 'usa-mar', ${homeVal}, ${awayVal})">
+            <span class="score-val">${homeVal}</span>
+            <span class="score-dash">-</span>
+            <span class="score-val">${awayVal}</span>
+            <i class="fa-solid fa-pen" style="font-size: 9px; margin-left: 4px; color: var(--text-muted);"></i>
+          </div>
+
+          <div style="display: flex; align-items: center; gap: 8px; flex: 1; justify-content: flex-end;">
+            <span style="font-weight: 700;">MAR</span>
+            <span class="flag-sm">🇲🇦</span>
+          </div>
+        `;
+      } else if (activeMatchTargetId === 'esp-jap') {
+        const card = document.querySelector('[onclick*="esp-jap"]');
+        card.innerHTML = `
+          <span class="score-val">${homeVal}</span>
+          <span class="score-dash">-</span>
+          <span class="score-val">${awayVal}</span>
+          <i class="fa-solid fa-pen" style="font-size: 9px; margin-left: 4px; color: var(--text-muted);"></i>
+        `;
+        card.setAttribute('onclick', `openPredictModal('España', '🇪🇸', 'Japón', '🇯🇵', 'esp-jap', ${homeVal}, ${awayVal})`);
+      } else if (activeMatchTargetId === 'next-match-widget') {
+        // Change the main CTA button on the next match card
+        const btn = document.querySelector('.next-match-widget button');
+        btn.innerHTML = `PREDICCIÓN: ${homeVal} - ${awayVal} <i class="fa-solid fa-pen" style="margin-left: 4px;"></i>`;
+        btn.className = 'btn btn-yellow';
+        btn.setAttribute('onclick', `openPredictModal('Argentina', '🇦🇷', 'Brasil', '🇧🇷', 'next-match-widget', ${homeVal}, ${awayVal})`);
+      }
+
+      document.getElementById('predictModal').classList.remove('active');
+    }
+
+    // Prediction Hub Filter
+    function filterPredictions(filter, tabEl) {
+      document.querySelectorAll('.chip').forEach(t => t.classList.remove('active'));
+      tabEl.classList.add('active');
+      
+      const cards = document.querySelectorAll('.match-predict-card');
+      cards.forEach(card => {
+        if (filter === 'all') {
+          card.style.display = 'flex';
+        } else {
+          const status = card.getAttribute('data-status');
+          if (status === filter) {
+            card.style.display = 'flex';
+          } else {
+            card.style.display = 'none';
+          }
+        }
+      });
+    }
+
+    // Group Details view
+    function openGroupDetail(name, code) {
+      document.getElementById('group-detail-name').innerText = name;
+      document.getElementById('group-detail-code').innerText = code;
+      
+      // Generar iniciales para avatar
+      const initials = name.split(' ').map(n => n[0]).join('').slice(0,2).toUpperCase();
+      document.getElementById('group-detail-avatar').innerText = initials;
+      
+      navigateTo('screen-group-detail');
+    }
+
+    function switchGroupTab(tab, tabEl) {
+      tabEl.parentNode.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      tabEl.classList.add('active');
+      
+      document.getElementById('group-sub-ranking').style.display = tab === 'ranking' ? 'flex' : 'none';
+      document.getElementById('group-sub-matches').style.display = tab === 'matches' ? 'block' : 'none';
+      document.getElementById('group-sub-members').style.display = tab === 'members' ? 'block' : 'none';
+    }
+
+    function copyGroupCode(code) {
+      const dummy = document.createElement("input");
+      document.body.appendChild(dummy);
+      dummy.value = code;
+      dummy.select();
+      document.execCommand("copy");
+      document.body.removeChild(dummy);
+      
+      const toast = document.getElementById('copyToast');
+      toast.classList.add('active');
+      setTimeout(() => {
+        toast.classList.remove('active');
+      }, 2000);
+    }
+
+    // Create & Join Group Modals
+    function openCreateGroupModal() {
+      document.getElementById('createGroupModal').classList.add('active');
+    }
+    function closeCreateGroupModal(e) {
+      if (!e || e.target === document.getElementById('createGroupModal') || e.target.closest('.close-btn')) {
+        document.getElementById('createGroupModal').classList.remove('active');
+      }
+    }
+    function submitCreateGroup() {
+      const name = document.getElementById('new-group-name').value;
+      if (!name) {
+        alert('Ingresa un nombre para tu grupo');
+        return;
+      }
+      
+      // Random 4 letters + 4 numbers code generator
+      const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+      const numbers = "0123456789";
+      let code = "";
+      for (let i = 0; i < 4; i++) code += letters.charAt(Math.floor(Math.random() * letters.length));
+      for (let i = 0; i < 4; i++) code += numbers.charAt(Math.floor(Math.random() * numbers.length));
+      
+      // Inject to lists
+      const initials = name.split(' ').map(n => n[0]).join('').slice(0,2).toUpperCase();
+      const newCard = `
+        <div class="card" onclick="openGroupDetail('${name}', '${code}')" style="display: flex; align-items: center; justify-content: space-between; cursor: pointer;">
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <div class="grp-img" style="background: var(--blue);">${initials}</div>
+            <div>
+              <h4 style="font-family: var(--font-fun); font-size: 15px;">${name}</h4>
+              <p style="font-size: 12px; color: var(--text-muted);">1 miembro • Límite 50</p>
+            </div>
+          </div>
+          <span class="badge badge-open">#1</span>
+        </div>
+      `;
+      
+      document.getElementById('dashboard-groups-list').insertAdjacentHTML('afterbegin', newCard);
+      document.getElementById('groups-full-list').insertAdjacentHTML('afterbegin', newCard);
+      
+      document.getElementById('createGroupModal').classList.remove('active');
+      document.getElementById('new-group-name').value = '';
+      
+      alert(`¡Grupo creado con éxito! Código de invitación: ${code}`);
+    }
+
+    function openJoinGroupModal() {
+      document.getElementById('joinGroupModal').classList.add('active');
+    }
+    function closeJoinGroupModal(e) {
+      if (!e || e.target === document.getElementById('joinGroupModal') || e.target.closest('.close-btn')) {
+        document.getElementById('joinGroupModal').classList.remove('active');
+      }
+    }
+    function submitJoinGroup() {
+      const code = document.getElementById('join-group-code').value.toUpperCase();
+      if (code.length !== 8) {
+        alert('El código debe tener exactamente 8 caracteres (4 letras y 4 números)');
+        return;
+      }
+      
+      // Simulating joining
+      const newGroupItem = `
+        <div class="card" onclick="openGroupDetail('Los Amigos del Mundial', '${code}')" style="display: flex; align-items: center; justify-content: space-between; cursor: pointer;">
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <div class="grp-img" style="background: var(--orange);">AM</div>
+            <div>
+              <h4 style="font-family: var(--font-fun); font-size: 15px;">Los Amigos del Mundial</h4>
+              <p style="font-size: 12px; color: var(--text-muted);">14 miembros • Límite 50</p>
+            </div>
+          </div>
+          <span class="badge badge-open">#14</span>
+        </div>
+      `;
+      
+      document.getElementById('dashboard-groups-list').insertAdjacentHTML('afterbegin', newGroupItem);
+      document.getElementById('groups-full-list').insertAdjacentHTML('afterbegin', newGroupItem);
+      
+      document.getElementById('joinGroupModal').classList.remove('active');
+      document.getElementById('join-group-code').value = '';
+      
+      alert('¡Te has unido al grupo exitosamente!');
+    }
+
+    // Group Settings/Admin flows
+    function openGroupSettings() {
+      const currentName = document.getElementById('group-detail-name').innerText;
+      document.getElementById('edit-group-name').value = currentName;
+      document.getElementById('groupSettingsModal').classList.add('active');
+    }
+    function closeGroupSettings(e) {
+      if (!e || e.target === document.getElementById('groupSettingsModal') || e.target.closest('.close-btn')) {
+        document.getElementById('groupSettingsModal').classList.remove('active');
+      }
+    }
+    function saveGroupSettings() {
+      const newName = document.getElementById('edit-group-name').value;
+      if (!newName) return;
+      document.getElementById('group-detail-name').innerText = newName;
+      document.getElementById('groupSettingsModal').classList.remove('active');
+      alert('Nombre del grupo actualizado');
+    }
+    function deleteGroup() {
+      if (confirm('¿Estás seguro de que deseas eliminar este grupo permanentemente?')) {
+        document.getElementById('groupSettingsModal').classList.remove('active');
+        navigateTo('screen-groups');
+        alert('Grupo eliminado');
+      }
+    }
+
+    // Kick member
+    function kickMember(name) {
+      if (confirm(`¿Estás seguro de que deseas expulsar a ${name} del grupo?`)) {
+        alert(`${name} ha sido expulsado del grupo.`);
+      }
+    }
+
+    // Profile page actions
+    function changeAvatar() {
+      const newSeed = prompt('Ingresa una semilla/apodo para tu avatar robotizado:', currentUser.nickname);
+      if (newSeed) {
+        currentUser.avatarSeed = newSeed;
+        const newUrl = `https://api.dicebear.com/7.x/bottts/svg?seed=${newSeed}`;
+        document.getElementById('header-avatar').src = newUrl;
+        document.getElementById('profile-avatar-img').src = newUrl;
+      }
+    }
+
+    function changeLanguage() {
+      const currentLang = document.getElementById('lbl-lang').innerText;
+      const nextLang = currentLang === 'Español' ? 'English' : 'Español';
+      document.getElementById('lbl-lang').innerText = nextLang;
+      alert(`Idioma cambiado a ${nextLang} (Simulado)`);
+    }
+
+    function logout() {
+      navigateTo('screen-splash');
+    }
+
+  </script>
+</body>
+</html>
