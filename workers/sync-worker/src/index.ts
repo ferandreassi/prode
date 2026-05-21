@@ -75,55 +75,9 @@ async function performSync(env: Env) {
     }
   }
 
-  // Fallback: If no API data was fetched, simulate a finished match to demonstrate grading
+  // If no data was fetched from the API, abort the sync
   if (fixtures.length === 0) {
-    fixtures = [
-      {
-        id: 101,
-        date: '2026-06-20T21:00:00Z',
-        status: 'FT', // Mark mock match 101 as finished (USA 2 - 1 MAR) to trigger grading!
-        round: 'Fase de Grupos — Fecha 1',
-        homeTeam: { name: 'USA', flag: '🇺🇸', code: 'USA' },
-        awayTeam: { name: 'Marruecos', flag: '🇲🇦', code: 'MAR' },
-        goals: { home: 2, away: 1 }
-      },
-      {
-        id: 102,
-        date: '2026-06-21T15:00:00Z',
-        status: 'NS',
-        round: 'Fase de Grupos — Fecha 1',
-        homeTeam: { name: 'España', flag: '🇪🇸', code: 'ESP' },
-        awayTeam: { name: 'Japón', flag: '🇯🇵', code: 'JPN' },
-        goals: { home: null, away: null }
-      },
-      {
-        id: 103,
-        date: '2026-06-18T18:00:00Z',
-        status: 'FT',
-        round: 'Fase de Grupos — Fecha 1',
-        homeTeam: { name: 'Francia', flag: '🇫🇷', code: 'FRA' },
-        awayTeam: { name: 'Australia', flag: '🇦🇺', code: 'AUS' },
-        goals: { home: 3, away: 0 }
-      },
-      {
-        id: 104,
-        date: '2026-06-18T20:30:00Z',
-        status: 'FT',
-        round: 'Fase de Grupos — Fecha 1',
-        homeTeam: { name: 'Alemania', flag: '🇩🇪', code: 'GER' },
-        awayTeam: { name: 'México', flag: '🇲🇽', code: 'MEX' },
-        goals: { home: 1, away: 1 }
-      },
-      {
-        id: 105,
-        date: '2026-06-20T19:00:00Z',
-        status: 'NS',
-        round: 'Fase de Grupos — Fecha 1',
-        homeTeam: { name: 'Argentina', flag: '🇦🇷', code: 'ARG' },
-        awayTeam: { name: 'Brasil', flag: '🇧🇷', code: 'BRA' },
-        goals: { home: null, away: null }
-      }
-    ];
+    throw new Error('No se pudo obtener datos de API Football. Verificá el token y la conectividad.');
   }
 
   // 2. Save complete list to KV

@@ -6,6 +6,7 @@ type Bindings = {
   DB: D1Database;
   IMAGES: R2Bucket;
   JWT_SECRET: string;
+  DATA_KV: KVNamespace;
 };
 
 type Variables = {
@@ -37,6 +38,7 @@ async function authRequired(c: any, next: any) {
   c.set('user', payload);
   await next();
 }
+
 
 // ------------------------------------
 // AUTH ROUTES
@@ -259,6 +261,129 @@ app.get('/groups/:id/fixtures/:fixtureId/leaderboard', authRequired, async (c) =
 
   } catch (err: any) {
     return c.json({ error: 'Error al obtener leaderboard del partido: ' + err.message }, 500);
+  }
+});
+
+// ------------------------------------
+// PREDICTIONS ROUTES
+// ------------------------------------
+
+// GET /predictions/me
+app.get('/predictions/me', authRequired, async (c) => {
+  try {
+    const userPayload = c.get('user');
+    const { results } = await c.env.DB.prepare(
+      'SELECT id, user_id, fixture_id, home_goals, away_goals, created_at, updated_at FROM predictions WHERE user_id = ?'
+    ).bind(userPayload.userId).all();
+
+    const predictions = results.map((p: any) => ({
+      id: p.id,
+      userId: p.user_id,
+      fixtureId: p.fixture_id,
+      homeGoals: p.home_goals,
+      awayGoals: p.away_goals,
+      createdAt: p.created_at,
+      updatedAt: p.updated_at
+    }));
+
+    return c.json({ predictions });
+  } catch (err: any) {
+    return c.json({ error: 'Error al obtener predicciones: ' + err.message }, 500);
+  }
+});
+
+// POST /predictions
+app.post('/predictions', authRequired, async (c) => {
+  try {
+    const userPayload = c.get('user');
+    const { fixtureId, homeGoals, awayGoals } = await c.req.json();
+
+    if (fixtureId === undefined || homeGoals === undefined || awayGoals === undefined) {
+      return c.json({ error: 'Faltan campos requeridos (fixtureId, homeGoals, awayGoals).' }, 400);
+    }
+
+    const fId = parseInt(fixtureId);
+    const hGoals = parseInt(homeGoals);
+    const aGoals = parseInt(awayGoals);
+
+    if (isNaN(fId) || isNaN(hGoals) || isNaN(aGoals)) {
+      return c.json({ error: 'Valores numéricos inválidos.' }, 400);
+    }
+
+    // Get fixture date from KV to validate deadline
+    let fixtureDate: string | null = null;
+    try {
+      const kvFixture = await c.env.DATA_KV.get(`wc2026:fixture:${fId}`, 'json') as any;
+      if (kvFixture && kvFixture.date) {
+        fixtureDate = kvFixture.date;
+      }
+    } catch (e) {
+      console.error('Error al obtener partido desde KV:', e);
+    }
+
+    if (!fixtureDate) {
+      return c.json({ error: 'Partido no encontrado.' }, 404);
+    }
+
+    // Validate prediction deadline (1 hour before match kick-off)
+    const matchTime = new Date(fixtureDate).getTime();
+    const now = Date.now();
+    const lockTime = matchTime - 60 * 60 * 1000; // 1 hour before kick-off
+
+    if (now >= lockTime) {
+      return c.json({ error: 'El pronóstico está cerrado. Los pronósticos se bloquean 1 hora antes del partido.' }, 400);
+    }
+
+    const uuid = crypto.randomUUID();
+
+    // Use INSERT OR REPLACE on predictions table or INSERT ON CONFLICT
+    await c.env.DB.prepare(`
+      INSERT INTO predictions (id, user_id, fixture_id, home_goals, away_goals, created_at, updated_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
+      ON CONFLICT(user_id, fixture_id) DO UPDATE SET
+        home_goals = excluded.home_goals,
+        away_goals = excluded.away_goals,
+        updated_at = excluded.updated_at
+    `).bind(uuid, userPayload.userId, fId, hGoals, aGoals, now, now).run();
+
+    return c.json({ message: 'Predicción guardada con éxito.' });
+
+  } catch (err: any) {
+    return c.json({ error: 'Error al guardar predicción: ' + err.message }, 500);
+  }
+});
+
+// GET /predictions/fixture/:id
+app.get('/predictions/fixture/:id', authRequired, async (c) => {
+  try {
+    const userPayload = c.get('user');
+    const fixtureId = parseInt(c.req.param('id'));
+
+    if (isNaN(fixtureId)) {
+      return c.json({ error: 'ID de partido inválido.' }, 400);
+    }
+
+    const p: any = await c.env.DB.prepare(
+      'SELECT id, user_id, fixture_id, home_goals, away_goals, created_at, updated_at FROM predictions WHERE user_id = ? AND fixture_id = ?'
+    ).bind(userPayload.userId, fixtureId).first();
+
+    if (!p) {
+      return c.json({ prediction: null });
+    }
+
+    const prediction = {
+      id: p.id,
+      userId: p.user_id,
+      fixtureId: p.fixture_id,
+      homeGoals: p.home_goals,
+      awayGoals: p.away_goals,
+      createdAt: p.created_at,
+      updatedAt: p.updated_at
+    };
+
+    return c.json({ prediction });
+  } catch (err: any) {
+    return c.json({ error: 'Error al obtener predicción del partido: ' + err.message }, 500);
   }
 });
 

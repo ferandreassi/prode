@@ -12,86 +12,13 @@ app.use('*', cors());
 // Health Check
 app.get('/health', (c) => c.json({ status: 'ok', worker: 'data-worker' }));
 
-// MOCK DATA FOR LOCAL DEVELOPMENT / FALLBACK
-const MOCK_FIXTURES = [
-  {
-    id: 101,
-    date: '2026-06-20T21:00:00Z',
-    status: 'NS', // Not Started
-    round: 'Fase de Grupos — Fecha 1',
-    homeTeam: { name: 'USA', flag: '🇺🇸', code: 'USA' },
-    awayTeam: { name: 'Marruecos', flag: '🇲🇦', code: 'MAR' },
-    goals: { home: null, away: null }
-  },
-  {
-    id: 102,
-    date: '2026-06-21T15:00:00Z',
-    status: 'NS',
-    round: 'Fase de Grupos — Fecha 1',
-    homeTeam: { name: 'España', flag: '🇪🇸', code: 'ESP' },
-    awayTeam: { name: 'Japón', flag: '🇯🇵', code: 'JPN' },
-    goals: { home: null, away: null }
-  },
-  {
-    id: 103,
-    date: '2026-06-18T18:00:00Z',
-    status: 'FT', // Finished
-    round: 'Fase de Grupos — Fecha 1',
-    homeTeam: { name: 'Francia', flag: '🇫🇷', code: 'FRA' },
-    awayTeam: { name: 'Australia', flag: '🇦🇺', code: 'AUS' },
-    goals: { home: 3, away: 0 }
-  },
-  {
-    id: 104,
-    date: '2026-06-18T20:30:00Z',
-    status: 'FT',
-    round: 'Fase de Grupos — Fecha 1',
-    homeTeam: { name: 'Alemania', flag: '🇩🇪', code: 'GER' },
-    awayTeam: { name: 'México', flag: '🇲🇽', code: 'MEX' },
-    goals: { home: 1, away: 1 }
-  },
-  {
-    id: 105,
-    date: '2026-06-20T19:00:00Z',
-    status: 'NS',
-    round: 'Fase de Grupos — Fecha 1',
-    homeTeam: { name: 'Argentina', flag: '🇦🇷', code: 'ARG' },
-    awayTeam: { name: 'Brasil', flag: '🇧🇷', code: 'BRA' },
-    goals: { home: null, away: null }
-  }
-];
-
-const MOCK_TEAMS = [
-  { id: 1, name: 'Argentina', flag: '🇦🇷', code: 'ARG' },
-  { id: 2, name: 'Brasil', flag: '🇧🇷', code: 'BRA' },
-  { id: 3, name: 'USA', flag: '🇺🇸', code: 'USA' },
-  { id: 4, name: 'Marruecos', flag: '🇲🇦', code: 'MAR' },
-  { id: 5, name: 'España', flag: '🇪🇸', code: 'ESP' },
-  { id: 6, name: 'Japón', flag: '🇯🇵', code: 'JPN' },
-  { id: 7, name: 'Francia', flag: '🇫🇷', code: 'FRA' },
-  { id: 8, name: 'Australia', flag: '🇦🇺', code: 'AUS' },
-  { id: 9, name: 'Alemania', flag: '🇩🇪', code: 'GER' },
-  { id: 10, name: 'México', flag: '🇲🇽', code: 'MEX' }
-];
-
-const MOCK_STANDINGS = [
-  {
-    group: 'Grupo A',
-    teams: [
-      { rank: 1, team: 'Argentina', played: 0, points: 0, goalsFor: 0, goalsAgainst: 0 },
-      { rank: 2, team: 'Brasil', played: 0, points: 0, goalsFor: 0, goalsAgainst: 0 }
-    ]
-  }
-];
-
 // GET /fixtures
 app.get('/fixtures', async (c) => {
   try {
-    let fixturesData = await c.env.DATA_KV.get('wc2026:fixtures', 'json') as any[];
-    
-    // Fallback if KV is empty
+    const fixturesData = await c.env.DATA_KV.get('wc2026:fixtures', 'json') as any[] | null;
+
     if (!fixturesData) {
-      fixturesData = MOCK_FIXTURES;
+      return c.json({ error: 'Datos de partidos no disponibles aún. Esperá la próxima sincronización.' }, 503);
     }
 
     const round = c.req.query('round');
@@ -105,6 +32,9 @@ app.get('/fixtures', async (c) => {
       filtered = filtered.filter(f => f.status === status);
     }
 
+    // Sort chronologically (ascending order)
+    filtered.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+
     return c.json({ fixtures: filtered });
   } catch (err: any) {
     return c.json({ error: 'Error al obtener fixtures: ' + err.message }, 500);
@@ -115,12 +45,7 @@ app.get('/fixtures', async (c) => {
 app.get('/fixtures/:id', async (c) => {
   try {
     const id = parseInt(c.req.param('id'));
-    let fixture = await c.env.DATA_KV.get(`wc2026:fixture:${id}`, 'json');
-
-    if (!fixture) {
-      // Fallback
-      fixture = MOCK_FIXTURES.find(f => f.id === id);
-    }
+    const fixture = await c.env.DATA_KV.get(`wc2026:fixture:${id}`, 'json');
 
     if (!fixture) {
       return c.json({ error: 'Partido no encontrado.' }, 404);
@@ -135,9 +60,9 @@ app.get('/fixtures/:id', async (c) => {
 // GET /teams
 app.get('/teams', async (c) => {
   try {
-    let teams = await c.env.DATA_KV.get('wc2026:teams', 'json') as any[];
+    const teams = await c.env.DATA_KV.get('wc2026:teams', 'json') as any[] | null;
     if (!teams) {
-      teams = MOCK_TEAMS;
+      return c.json({ error: 'Equipos no disponibles aún. Esperá la próxima sincronización.' }, 503);
     }
     return c.json({ teams });
   } catch (err: any) {
@@ -148,9 +73,9 @@ app.get('/teams', async (c) => {
 // GET /standings
 app.get('/standings', async (c) => {
   try {
-    let standings = await c.env.DATA_KV.get('wc2026:standings', 'json') as any[];
+    const standings = await c.env.DATA_KV.get('wc2026:standings', 'json') as any[] | null;
     if (!standings) {
-      standings = MOCK_STANDINGS;
+      return c.json({ error: 'Tabla de posiciones no disponible aún. Esperá la próxima sincronización.' }, 503);
     }
     return c.json({ standings });
   } catch (err: any) {

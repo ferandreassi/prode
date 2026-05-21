@@ -13,3 +13,8 @@ database_id = "86abbf22-7a40-4336-8419-facbac2ae0dd"
 [[r2_buckets]]
 binding = "IMAGES"
 bucket_name = "prode-u-images"
+
+[[kv_namespaces]]
+binding = "DATA_KV"
+id = "7919e7ed95e74de28b311de524a4cc7b"
+
