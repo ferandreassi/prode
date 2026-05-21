@@ -88,9 +88,43 @@ Y abre [http://localhost:3000](http://localhost:3000) en tu navegador.
 
 ## 🌐 Despliegue en Cloudflare (Producción)
 
-Para desplegar de manera global y productiva en la red Edge de Cloudflare, ejecuta el siguiente comando en la carpeta de cada uno de los workers correspondientes:
+Para desplegar de manera global y productiva en la red Edge de Cloudflare, primero debes configurar los recursos en tu cuenta de Cloudflare:
+
+### 1. Inicializar Recursos en la Nube
+Ejecuta estos comandos para crear la base de datos, el almacenamiento KV y el bucket R2:
 
 ```bash
+# Crear Base de Datos D1 (api-worker)
+npx wrangler d1 create prode_u_db
+
+# Crear KV Namespace para caché de fixtures (data-worker & sync-worker)
+npx wrangler kv:namespace create DATA_KV
+
+# Crear Bucket R2 para imágenes y avatares (api-worker)
+npx wrangler r2 bucket create prode-u-images
+```
+
+*Nota: Asegúrate de actualizar los valores de `database_id` y los IDs de `kv_namespaces` en los respectivos archivos `wrangler.toml` con los IDs proporcionados por la terminal de Wrangler.*
+
+### 2. Ejecutar Migraciones e Inyectar Secretos
+```bash
+# Ejecutar migración SQL en la base de datos D1 de producción
+cd workers/api-worker
+npx wrangler d1 execute prode_u_db --remote --file=schema.sql
+
+# Inyectar secreto JWT_SECRET en api-worker
+npx wrangler secret put JWT_SECRET
+
+# Inyectar secreto API_FOOTBALL_TOKEN en sync-worker
+cd ../sync-worker
+npx wrangler secret put API_FOOTBALL_TOKEN
+```
+
+### 3. Desplegar los Workers
+Ejecuta el despliegue en la carpeta de cada worker:
+
+```bash
+# En cada carpeta de worker respectiva:
 npm run deploy
 ```
 

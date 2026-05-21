@@ -38,12 +38,17 @@ npm run dev
 
 ## 📦 Despliegue en Producción
 
-### 1. Crear la Base de Datos Remota en D1
-Si es la primera vez que despliegas en la nube, debes crear el D1 en Cloudflare:
+### 1. Crear la Base de Datos Remota en D1 y el Bucket R2
+Si es la primera vez que despliegas en la nube, debes crear la base de datos D1 y el bucket de R2 en Cloudflare:
+
 ```bash
+# Crear la base de datos D1
 npx wrangler d1 create prode_u_db
+
+# Crear el bucket R2 para imágenes
+npx wrangler r2 bucket create prode-u-images
 ```
-Copia el `database_id` que te proporcione la terminal e insértalo en tu `wrangler.toml` bajo el campo `database_id`.
+Copia el `database_id` obtenido y pégalo en tu `wrangler.toml` reemplazando la línea `database_id = "..."`.
 
 ### 2. Ejecutar Migraciones en Producción
 ```bash

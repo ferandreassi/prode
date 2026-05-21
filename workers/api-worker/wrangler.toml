@@ -8,7 +8,7 @@ JWT_SECRET = "prode_u_super_secret_key_for_jwt_auth_mundial_2026"
 [[d1_databases]]
 binding = "DB"
 database_name = "prode_u_db"
-database_id = "local-prode-u-db"
+database_id = "86abbf22-7a40-4336-8419-facbac2ae0dd"
 
 [[r2_buckets]]
 binding = "IMAGES"

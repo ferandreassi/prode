@@ -3,5 +3,5 @@ main = "src/index.ts"
 compatibility_date = "2024-05-12"
 
 [[kv_namespaces]]
-binding = "DATA_KV"
-id = "local-data-kv"
+binding = "data-worker-DATA_KV"
+id = "7919e7ed95e74de28b311de524a4cc7b"
