@@ -182,9 +182,9 @@ export const Dashboard: React.FC = () => {
         <div 
           className="card" 
           style={{
-            background: 'rgba(255, 255, 255, 0.08)',
-            border: '2px solid rgba(255,203,71,0.3)',
-            boxShadow: '0 8px 32px rgba(255,203,71,0.06)'
+            background: 'rgba(255, 255, 255, 0.04)',
+            border: '1px solid rgba(255, 195, 0, 0.35)',
+            boxShadow: '0 8px 32px rgba(255, 195, 0, 0.08), 0 0 15px rgba(255, 195, 0, 0.1)'
           }}
         >
           {/* Match Info */}

@@ -56,7 +56,7 @@ export const Auth: React.FC = () => {
     <div 
       className="screen active" 
       style={{
-        background: 'linear-gradient(160deg, #501E8C 0%, #7B4FE0 50%, #B834A0 100%)',
+        background: 'var(--screen-gradient)',
         justifyContent: 'center',
         padding: '20px',
         overflowY: 'auto'

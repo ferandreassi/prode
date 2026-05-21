@@ -27,7 +27,6 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   isLoading: true,
 
   login: async (nickname, password) => {
-    set({ isLoading: true });
     try {
       const res = await api.post('/auth/login', { nickname, password });
       const { token, user } = res;
@@ -40,16 +39,13 @@ export const useAuthStore = create<AuthState>((set, get) => ({
           avatarUrl: user.avatarUrl || user.avatar_url,
         },
         isAuthenticated: true,
-        isLoading: false,
       });
     } catch (error) {
-      set({ isLoading: false });
       throw error;
     }
   },
 
   register: async (nickname, password) => {
-    set({ isLoading: true });
     try {
       const res = await api.post('/auth/register', { nickname, password });
       const { token, user } = res;
@@ -62,10 +58,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
           avatarUrl: user.avatarUrl || user.avatar_url,
         },
         isAuthenticated: true,
-        isLoading: false,
       });
     } catch (error) {
-      set({ isLoading: false });
       throw error;
     }
   },
@@ -87,7 +81,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       return;
     }
 
-    set({ isLoading: true });
+    if (!get().isAuthenticated) {
+      set({ isLoading: true });
+    }
     try {
       const res = await api.get('/users/me');
       const backendUser = res.user;

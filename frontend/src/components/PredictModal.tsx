@@ -29,6 +29,12 @@ export const PredictModal: React.FC = () => {
       return res.prediction;
     },
     enabled: !!predictMatchId,
+    initialData: () => {
+      if (!predictMatchId) return undefined;
+      const cachedPredictions = queryClient.getQueryData<any[]>(['predictions']);
+      const cached = cachedPredictions?.find(p => p.fixtureId === parseInt(predictMatchId));
+      return cached ? { homeGoals: cached.homeGoals, awayGoals: cached.awayGoals } : undefined;
+    }
   });
 
   // Sync state once fetched prediction is loaded
@@ -51,6 +57,7 @@ export const PredictModal: React.FC = () => {
       showToast('¡Pronóstico guardado!', 'success');
       // Invalidate queries to refresh match list
       queryClient.invalidateQueries({ queryKey: ['predictions'] });
+      queryClient.invalidateQueries({ queryKey: ['prediction'] });
       queryClient.invalidateQueries({ queryKey: ['fixtures'] });
       queryClient.invalidateQueries({ queryKey: ['dashboard'] });
       closePredictModal();

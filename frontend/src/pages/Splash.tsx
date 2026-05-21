@@ -2,23 +2,32 @@ import React, { useEffect } from 'react';
 import { useAuthStore } from '@/store/authStore';
 
 export const Splash: React.FC = () => {
-  const { checkAuth } = useAuthStore();
+  const checkAuth = useAuthStore(state => state.checkAuth);
 
   useEffect(() => {
-    // Run the authentication check on mount
-    const check = async () => {
-      // Small artificial delay to let the animation shine
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      await checkAuth();
+    let active = true;
+    
+    const timer = setTimeout(async () => {
+      try {
+        if (active) {
+          await checkAuth();
+        }
+      } catch (error) {
+        console.error('Error in Splash auth check:', error);
+      }
+    }, 1500);
+
+    return () => {
+      active = false;
+      clearTimeout(timer);
     };
-    check();
-  }, [checkAuth]);
+  }, []);
 
   return (
     <div 
       className="screen active" 
       style={{
-        background: 'linear-gradient(160deg, #501E8C 0%, #7B4FE0 50%, #B834A0 100%)',
+        background: 'var(--screen-gradient)',
         justifyContent: 'center',
         alignItems: 'center',
         textAlign: 'center',
