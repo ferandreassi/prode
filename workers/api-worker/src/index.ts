@@ -217,4 +217,50 @@ app.get('/users/me/groups', authRequired, async (c) => {
   }
 });
 
+// GET /groups/:id/fixtures/:fixtureId/leaderboard
+app.get('/groups/:id/fixtures/:fixtureId/leaderboard', authRequired, async (c) => {
+  try {
+    const groupId = c.req.param('id');
+    const fixtureId = parseInt(c.req.param('fixtureId'));
+    const userPayload = c.get('user');
+
+    if (isNaN(fixtureId)) {
+      return c.json({ error: 'ID de partido inválido.' }, 400);
+    }
+
+    // Check membership
+    const membership = await c.env.DB.prepare(
+      'SELECT 1 FROM group_members WHERE group_id = ? AND user_id = ?'
+    ).bind(groupId, userPayload.userId).first();
+
+    if (!membership) {
+      return c.json({ error: 'No tienes acceso a este grupo.' }, 403);
+    }
+
+    // Fetch leaderboard for this fixture in the group
+    const { results } = await c.env.DB.prepare(`
+      SELECT 
+        u.id as userId,
+        u.nickname,
+        u.avatar_url as avatarUrl,
+        p.home_goals as predHome,
+        p.away_goals as predAway,
+        COALESCE(s.points, 0) as points,
+        s.score_type as scoreType
+      FROM group_members gm
+      JOIN users u ON gm.user_id = u.id
+      LEFT JOIN predictions p ON p.user_id = u.id AND p.fixture_id = ?
+      LEFT JOIN scores s ON s.user_id = u.id AND s.fixture_id = ?
+      WHERE gm.group_id = ?
+      ORDER BY points DESC, u.nickname ASC
+    `).bind(fixtureId, fixtureId, groupId).all();
+
+    return c.json({ leaderboard: results });
+
+  } catch (err: any) {
+    return c.json({ error: 'Error al obtener leaderboard del partido: ' + err.message }, 500);
+  }
+});
+
 export default app;
+

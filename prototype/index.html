@@ -290,6 +290,9 @@
                 <span class="flag-sm">🇦🇺</span>
               </div>
             </div>
+            <button class="btn btn-yellow" style="position: absolute; bottom: 8px; left: 18px; width: auto; padding: 4px 10px; font-size: 11px; margin: 0; box-shadow: 0 3px 0 #E5A800;" onclick="openMatchLeaderboard(103, 'Francia', '🇫🇷', 'Australia', '🇦🇺', 3, 0, 'Fase de Grupos — Fecha 1')">
+              <i class="fa-solid fa-trophy" style="font-size: 10px; margin-right: 4px;"></i> POSICIONES
+            </button>
             <div class="pts-tag pts-7" style="position: absolute; bottom: 12px; right: 18px;">+7 pts (Exacto)</div>
           </div>
 
@@ -316,8 +319,12 @@
                 <span class="flag-sm">🇲🇽</span>
               </div>
             </div>
+            <button class="btn btn-yellow" style="position: absolute; bottom: 8px; left: 18px; width: auto; padding: 4px 10px; font-size: 11px; margin: 0; box-shadow: 0 3px 0 #E5A800;" onclick="openMatchLeaderboard(104, 'Alemania', '🇩🇪', 'México', '🇲🇽', 1, 1, 'Fase de Grupos — Fecha 1')">
+              <i class="fa-solid fa-trophy" style="font-size: 10px; margin-right: 4px;"></i> POSICIONES
+            </button>
             <div class="pts-tag pts-3" style="position: absolute; bottom: 12px; right: 18px;">+3 pts (Empate)</div>
           </div>
+
 
         </div>
       </div>
@@ -478,7 +485,35 @@
                 </div>
               </div>
             </div>
+
+            <p style="font-size: 11px; font-weight: 700; color: var(--text-muted); margin: 18px 0 10px 0; text-transform: uppercase; letter-spacing: 0.5px;">Partidos Finalizados:</p>
+            
+            <div class="card" style="background: rgba(255,255,255,0.12); position: relative; padding-bottom: 45px;">
+              <div style="display: flex; justify-content: space-between; font-size: 11px; font-weight: 800; color: var(--text-muted); margin-bottom: 10px; text-transform: uppercase;">
+                <span>FRA VS AUS</span>
+                <span class="badge badge-done">Terminado (3-0)</span>
+              </div>
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+                <div style="display: flex; align-items: center; gap: 8px; flex: 1;">
+                  <span class="flag-sm">🇫🇷</span>
+                  <span style="font-weight: 700; font-size: 13px;">Francia</span>
+                </div>
+                <div class="score-box" style="opacity: 0.8; padding: 4px 12px; height: auto;">
+                  <span class="score-val" style="font-size: 15px;">3</span>
+                  <span class="score-dash">-</span>
+                  <span class="score-val" style="font-size: 15px;">0</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 8px; flex: 1; justify-content: flex-end;">
+                  <span style="font-weight: 700; font-size: 13px;">Australia</span>
+                  <span class="flag-sm">🇦🇺</span>
+                </div>
+              </div>
+              <button class="btn btn-yellow" style="position: absolute; bottom: 8px; left: 18px; width: auto; padding: 4px 10px; font-size: 11px; margin: 0; box-shadow: 0 3px 0 #E5A800;" onclick="openMatchLeaderboard(103, 'Francia', '🇫🇷', 'Australia', '🇦🇺', 3, 0, 'Fase de Grupos — Fecha 1')">
+                <i class="fa-solid fa-trophy" style="font-size: 10px; margin-right: 4px;"></i> POSICIONES DEL GRUPO
+              </button>
+            </div>
           </div>
+
 
           <!-- Members Sub-Tab -->
           <div id="group-sub-members" style="display: none;">
@@ -572,6 +607,50 @@
             <i class="fa-solid fa-chevron-right" style="font-size: 12px;"></i>
           </div>
         </div>
+      </div>
+    </div>
+
+    <!-- 8. MATCH LEADERBOARD SCREEN (Leaderboard por Partido) -->
+    <div id="screen-match-leaderboard" class="screen">
+      <div class="header">
+        <button class="close-btn" onclick="navigateTo(lastScreenBeforeMatchLeaderboard || 'screen-predictions')" style="width: auto; height: auto; padding: 5px 12px; border-radius: 12px;"><i class="fa-solid fa-arrow-left"></i></button>
+        <h2>Leaderboard por Partido</h2>
+        <i class="fa-solid fa-trophy" style="color: var(--yellow); font-size: 18px;"></i>
+      </div>
+      
+      <div class="scroll" style="padding-top: 15px;">
+        
+        <!-- Match Score Card -->
+        <div class="card" style="background: rgba(255,255,255,0.12); margin-bottom: 20px;">
+          <p id="match-leaderboard-round" style="font-family: var(--font-fun); font-size: 12px; color: var(--yellow); text-align: center; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px;">Fase de Grupos — Fecha 1</p>
+          
+          <div style="display: flex; align-items: center; justify-content: space-between; margin: 15px 0;">
+            <div style="display: flex; flex-direction: column; align-items: center; flex: 1;">
+              <span class="flag" id="match-leaderboard-home-flag">🇫🇷</span>
+              <span style="font-family: var(--font-fun); font-size: 14px; margin-top: 5px;" id="match-leaderboard-home-name">Francia</span>
+            </div>
+            
+            <div class="score-box" style="padding: 6px 16px;">
+              <span class="score-val" id="match-leaderboard-home-score">3</span>
+              <span class="score-dash">-</span>
+              <span class="score-val" id="match-leaderboard-away-score">0</span>
+            </div>
+            
+            <div style="display: flex; flex-direction: column; align-items: center; flex: 1;">
+              <span class="flag" id="match-leaderboard-away-flag">🇦🇺</span>
+              <span style="font-family: var(--font-fun); font-size: 14px; margin-top: 5px;" id="match-leaderboard-away-name">Australia</span>
+            </div>
+          </div>
+          <p style="font-size: 11px; text-align: center; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">PARTIDO FINALIZADO</p>
+        </div>
+
+        <!-- Leaderboard List -->
+        <div class="section" style="margin-top: 10px;">POSICIONES EN EL GRUPO</div>
+        
+        <div id="match-leaderboard-list" style="display: flex; flex-direction: column;">
+          <!-- Items will be dynamically generated by JS -->
+        </div>
+
       </div>
     </div>
 
@@ -736,6 +815,26 @@
     };
 
     let activeMatchTargetId = null; // tracking which card receives prediction score
+    let lastScreenBeforeMatchLeaderboard = 'screen-predictions';
+
+    // Datos simulados para posiciones de los partidos en el grupo actual
+    const MOCK_MATCH_LEADERBOARDS = {
+      103: [ // Francia vs Australia (3-0)
+        { nickname: 'KunAguero19', avatarSeed: 'Aguerito', pred: '3 - 0', points: 7, type: 'EXACT', label: 'Exacto' },
+        { nickname: 'DibuMartinez', avatarSeed: 'Dibu', pred: '2 - 0', points: 4, type: 'WINNER_DIFF', label: 'Ganador + Dif' },
+        { nickname: 'Messi10', avatarSeed: 'Messi10', pred: '3 - 1', points: 3, type: 'WINNER', label: 'Ganador', isMe: true },
+        { nickname: 'ScaloniTech', avatarSeed: 'Scaloni', pred: '1 - 0', points: 3, type: 'WINNER', label: 'Ganador' },
+        { nickname: 'CutiRomero', avatarSeed: 'Cuti', pred: '1 - 1', points: 0, type: 'MISS', label: 'Errado' }
+      ],
+      104: [ // Alemania vs México (1-1)
+        { nickname: 'DibuMartinez', avatarSeed: 'Dibu', pred: '1 - 1', points: 7, type: 'EXACT', label: 'Exacto' },
+        { nickname: 'Messi10', avatarSeed: 'Messi10', pred: '2 - 2', points: 4, type: 'WINNER_DIFF', label: 'Empate', isMe: true },
+        { nickname: 'KunAguero19', avatarSeed: 'Aguerito', pred: '0 - 0', points: 4, type: 'WINNER_DIFF', label: 'Empate' },
+        { nickname: 'ScaloniTech', avatarSeed: 'Scaloni', pred: '2 - 1', points: 1, type: 'PARTIAL', label: 'Parcial (GER)' },
+        { nickname: 'CutiRomero', avatarSeed: 'Cuti', pred: '0 - 3', points: 0, type: 'MISS', label: 'Errado' }
+      ]
+    };
+
 
     // Navigation function
     function navigateTo(screenId) {
@@ -932,6 +1031,60 @@
       document.getElementById('group-sub-ranking').style.display = tab === 'ranking' ? 'flex' : 'none';
       document.getElementById('group-sub-matches').style.display = tab === 'matches' ? 'block' : 'none';
       document.getElementById('group-sub-members').style.display = tab === 'members' ? 'block' : 'none';
+    }
+
+    function openMatchLeaderboard(fixtureId, homeName, homeFlag, awayName, awayFlag, homeScore, awayScore, roundName) {
+      lastScreenBeforeMatchLeaderboard = currentScreen;
+      
+      // Cargar detalles del partido
+      document.getElementById('match-leaderboard-round').innerText = roundName;
+      document.getElementById('match-leaderboard-home-flag').innerText = homeFlag;
+      document.getElementById('match-leaderboard-home-name').innerText = homeName;
+      document.getElementById('match-leaderboard-away-flag').innerText = awayFlag;
+      document.getElementById('match-leaderboard-away-name').innerText = awayName;
+      
+      document.getElementById('match-leaderboard-home-score').innerText = homeScore;
+      document.getElementById('match-leaderboard-away-score').innerText = awayScore;
+      
+      // Limpiar y poblar la lista de posiciones
+      const listEl = document.getElementById('match-leaderboard-list');
+      listEl.innerHTML = '';
+      
+      const leaderboard = MOCK_MATCH_LEADERBOARDS[fixtureId] || [];
+      
+      leaderboard.forEach((player, index) => {
+        const rank = index + 1;
+        const isMeClass = player.isMe ? 'me' : '';
+        const meSuffix = player.isMe ? ' (Tú)' : '';
+        
+        let ptsClass = 'pts-0';
+        if (player.points === 7) ptsClass = 'pts-7';
+        else if (player.points === 4) ptsClass = 'pts-4';
+        else if (player.points === 3) ptsClass = 'pts-3';
+        else if (player.points === 1) ptsClass = 'pts-1';
+        
+        const avatarUrl = `https://api.dicebear.com/7.x/bottts/svg?seed=${player.avatarSeed || player.nickname}`;
+        
+        const rowHTML = `
+          <div class="lb-row ${isMeClass}" style="margin-bottom: 8px;">
+            <div class="lb-left">
+              <span class="lb-rank">${rank}</span>
+              <img src="${avatarUrl}" alt="avatar" class="avatar" style="width: 36px; height: 36px; border: 2px solid rgba(255,255,255,0.35);">
+              <div>
+                <span style="font-weight: 800; display: block; line-height: 1.2; font-size: 14px;">${player.nickname}${meSuffix}</span>
+                <span style="font-size: 11px; color: var(--text-muted); font-weight: 600;">Predijo: <strong style="color: var(--white);">${player.pred}</strong></span>
+              </div>
+            </div>
+            <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 4px;">
+              <span class="lb-pts" style="font-size: 14px;">${player.points} pts</span>
+              <span class="pts-tag ${ptsClass}" style="margin: 0; font-size: 9px; padding: 2px 6px; border-radius: 6px;">${player.label}</span>
+            </div>
+          </div>
+        `;
+        listEl.insertAdjacentHTML('beforeend', rowHTML);
+      });
+      
+      navigateTo('screen-match-leaderboard');
     }
 
     function copyGroupCode(code) {
