@@ -262,5 +262,76 @@ app.get('/groups/:id/fixtures/:fixtureId/leaderboard', authRequired, async (c) =
   }
 });
 
+// ------------------------------------
+// STORAGE & R2 IMAGE UPLOAD ROUTES
+// ------------------------------------
+
+// POST /upload (Authenticated - max 2MB)
+app.post('/upload', authRequired, async (c) => {
+  try {
+    const body = await c.req.parseBody();
+    const file = body['file'];
+
+    if (!file || !(file instanceof File)) {
+      return c.json({ error: 'No se subió ningún archivo válido bajo el campo "file".' }, 400);
+    }
+
+    // Limit size to 2MB
+    if (file.size > 2 * 1024 * 1024) {
+      return c.json({ error: 'La imagen excede el límite de tamaño de 2MB.' }, 400);
+    }
+
+    // Check mime type
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/svg+xml'];
+    if (!allowedTypes.includes(file.type)) {
+      return c.json({ error: 'Tipo de archivo no permitido. Solo se aceptan imágenes (JPEG, PNG, WEBP, GIF, SVG).' }, 400);
+    }
+
+    // Generate unique clean filename
+    const ext = file.name.split('.').pop() || 'png';
+    const uuid = crypto.randomUUID();
+    const key = `uploads/${uuid}.${ext}`;
+
+    const arrayBuffer = await file.arrayBuffer();
+    await c.env.IMAGES.put(key, arrayBuffer, {
+      httpMetadata: { contentType: file.type }
+    });
+
+    // Return key and full relative URL
+    return c.json({
+      message: 'Archivo subido con éxito.',
+      key,
+      url: `/images/${key}`
+    }, 201);
+
+  } catch (err: any) {
+    return c.json({ error: 'Error al subir archivo: ' + err.message }, 500);
+  }
+});
+
+// GET /images/* (Public serving from R2)
+app.get('/images/*', async (c) => {
+  try {
+    const key = c.req.path.substring('/images/'.length);
+    if (!key) {
+      return c.json({ error: 'Ruta de imagen inválida.' }, 400);
+    }
+
+    const object = await c.env.IMAGES.get(key);
+    if (!object) {
+      return c.text('Imagen no encontrada.', 404);
+    }
+
+    const headers = new Headers();
+    object.writeHttpMetadata(headers);
+    headers.set('etag', object.httpEtag);
+
+    return new Response(object.body, { headers });
+
+  } catch (err: any) {
+    return c.json({ error: 'Error al servir imagen: ' + err.message }, 500);
+  }
+});
+
 export default app;
 
