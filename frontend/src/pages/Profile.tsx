@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuthStore } from '@/store/authStore';
 import { useUIStore } from '@/store/uiStore';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { api, API_BASE, getAvatarUrl } from '@/services/api';
+import { api, getAvatarUrl } from '@/services/api';
 import { LogOut, User, ShieldCheck, Camera } from 'lucide-react';
 import { calculatePoints } from './PredictionsHub';
 
@@ -31,6 +31,14 @@ export const Profile: React.FC = () => {
   const [nickname, setNickname] = useState(user?.nickname || '');
   const [avatarUrl, setAvatarUrl] = useState(user?.avatarUrl || '');
   const [uploading, setUploading] = useState(false);
+
+  // Synchronize local states when user object loads or updates
+  useEffect(() => {
+    if (user) {
+      setNickname(user.nickname || '');
+      setAvatarUrl(user.avatarUrl || '');
+    }
+  }, [user]);
 
   // 1. Fetch public matches from data-worker
   const { data: fixturesRes } = useQuery({
@@ -91,7 +99,7 @@ export const Profile: React.FC = () => {
     }
   });
 
-  // Handle R2 avatar image upload
+  // Handle R2 avatar image upload (Auto-saves to database immediately)
   const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -108,9 +116,26 @@ export const Profile: React.FC = () => {
     try {
       const res = await api.post('/upload', formData);
       setAvatarUrl(res.url);
-      showToast('¡Imagen subida con éxito! Guarda para confirmar.', 'success');
+      
+      // Auto-save the new avatar URL in D1 database immediately!
+      const updateRes = await api.put('/users/me', {
+        nickname: nickname.trim() || user?.nickname || '',
+        avatarUrl: res.url
+      });
+      
+      localStorage.setItem('prode_u_jwt', updateRes.token);
+      updateUser({
+        nickname: updateRes.user.nickname,
+        avatarUrl: updateRes.user.avatarUrl
+      });
+      
+      queryClient.invalidateQueries({ queryKey: ['group-members'] });
+      queryClient.invalidateQueries({ queryKey: ['my-groups'] });
+      queryClient.invalidateQueries({ queryKey: ['fixtures'] });
+      
+      showToast('¡Imagen de perfil actualizada con éxito!', 'success');
     } catch (err: any) {
-      showToast(err.message || 'Error al subir imagen.', 'error');
+      showToast(err.message || 'Error al actualizar imagen de perfil.', 'error');
     } finally {
       setUploading(false);
     }
