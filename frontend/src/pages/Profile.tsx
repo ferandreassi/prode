@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useAuthStore } from '@/store/authStore';
 import { useUIStore } from '@/store/uiStore';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { api } from '@/services/api';
+import { api, API_BASE } from '@/services/api';
 import { LogOut, User, ShieldCheck, Camera } from 'lucide-react';
 import { calculatePoints } from './PredictionsHub';
 
@@ -108,7 +108,7 @@ export const Profile: React.FC = () => {
     try {
       const res = await api.post('/upload', formData);
       // Construct full url pointing to api-worker static routing
-      const fullUrl = `http://localhost:8787${res.url}`;
+      const fullUrl = `${API_BASE}${res.url}`;
       setAvatarUrl(fullUrl);
       showToast('¡Imagen subida con éxito! Guarda para confirmar.', 'success');
     } catch (err: any) {

@@ -1,5 +1,5 @@
-const API_BASE = 'http://localhost:8787';
-const DATA_BASE = 'http://localhost:8788';
+export const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8787';
+export const DATA_BASE = import.meta.env.VITE_DATA_BASE || 'http://localhost:8788';
 
 interface FetchOptions extends RequestInit {
   params?: Record<string, string>;
