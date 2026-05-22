@@ -39,6 +39,19 @@ async function authRequired(c: any, next: any) {
   await next();
 }
 
+// Admin Middleware
+async function adminRequired(c: any, next: any) {
+  const userPayload = c.get('user');
+  if (!userPayload) {
+    return c.json({ error: 'Acceso no autorizado. Autenticación requerida.' }, 401);
+  }
+  const adminList = (c.env.ADMIN_NICKNAMES || '').split(',').map((n: string) => n.trim().toLowerCase());
+  if (!adminList.includes(userPayload.nickname.toLowerCase())) {
+    return c.json({ error: 'Acceso denegado. Se requieren privilegios de administrador.' }, 403);
+  }
+  await next();
+}
+
 
 // ------------------------------------
 // AUTH ROUTES
@@ -772,6 +785,302 @@ app.get('/images/*', async (c) => {
     return c.json({ error: 'Error al servir imagen: ' + err.message }, 500);
   }
 });
+
+
+// ====================================
+// ADMIN & ANALYTICS ROUTES
+// ====================================
+
+// GET /admin/analytics/overview (Overview stats)
+app.get('/admin/analytics/overview', authRequired, adminRequired, async (c) => {
+  try {
+    const totalUsersRes: any = await c.env.DB.prepare('SELECT COUNT(*) as count FROM users').first();
+    const totalGroupsRes: any = await c.env.DB.prepare('SELECT COUNT(*) as count FROM groups').first();
+    const totalPredictionsRes: any = await c.env.DB.prepare('SELECT COUNT(*) as count FROM predictions').first();
+    
+    const activeUsersRes: any = await c.env.DB.prepare('SELECT COUNT(DISTINCT user_id) as count FROM predictions').first();
+    const avgMembersRes: any = await c.env.DB.prepare(
+      'SELECT AVG(members_count) as avgMembers FROM (SELECT COUNT(*) as members_count FROM group_members GROUP BY group_id)'
+    ).first();
+
+    const totalUsers = totalUsersRes?.count || 0;
+    const totalGroups = totalGroupsRes?.count || 0;
+    const totalPredictions = totalPredictionsRes?.count || 0;
+    const activeUsers = activeUsersRes?.count || 0;
+    const avgMembersPerGroup = parseFloat((avgMembersRes?.avgMembers || 0).toFixed(1));
+
+    // Calculate how many fixtures exist in KV to determine prediction engagement rate
+    let totalFixtures = 64; // Default WC fixtures count
+    try {
+      const kvFixtures = await c.env.DATA_KV.get('wc2026:fixtures', 'json') as any[];
+      if (kvFixtures && kvFixtures.length > 0) {
+        totalFixtures = kvFixtures.length;
+      }
+    } catch (e) {
+      console.error('Error fetching wc2026:fixtures from KV:', e);
+    }
+
+    // Completion rate: total actual predictions / potential predictions (users * fixtures)
+    const potentialPredictions = totalUsers * totalFixtures;
+    const predictionEngagementRate = potentialPredictions > 0
+      ? parseFloat(((totalPredictions / potentialPredictions) * 100).toFixed(1))
+      : 0;
+
+    return c.json({
+      totalUsers,
+      totalGroups,
+      totalPredictions,
+      activeUsers,
+      avgMembersPerGroup,
+      predictionEngagementRate
+    });
+  } catch (err: any) {
+    return c.json({ error: 'Error al obtener resumen de analíticas: ' + err.message }, 500);
+  }
+});
+
+// GET /admin/analytics/growth (Daily signups and predictions for last 14 days)
+app.get('/admin/analytics/growth', authRequired, adminRequired, async (c) => {
+  try {
+    const days = 14;
+    const cutoffTime = Date.now() - days * 24 * 60 * 60 * 1000;
+    
+    // Query daily sign-ups
+    const { results: rawUsers } = await c.env.DB.prepare(`
+      SELECT 
+        strftime('%Y-%m-%d', datetime(created_at/1000, 'unixepoch', 'localtime')) as date, 
+        COUNT(*) as count 
+      FROM users 
+      WHERE created_at >= ?
+      GROUP BY date 
+      ORDER BY date ASC
+    `).bind(cutoffTime).all();
+
+    // Query daily predictions
+    const { results: rawPredictions } = await c.env.DB.prepare(`
+      SELECT 
+        strftime('%Y-%m-%d', datetime(created_at/1000, 'unixepoch', 'localtime')) as date, 
+        COUNT(*) as count 
+      FROM predictions 
+      WHERE created_at >= ?
+      GROUP BY date 
+      ORDER BY date ASC
+    `).bind(cutoffTime).all();
+
+    // Let's generate a list of the last 14 days to make sure we return a continuous time series
+    const dates: string[] = [];
+    for (let i = days - 1; i >= 0; i--) {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      const dateString = d.toISOString().split('T')[0];
+      dates.push(dateString);
+    }
+
+    const usersMap = new Map(rawUsers.map((r: any) => [r.date, r.count]));
+    const predictionsMap = new Map(rawPredictions.map((r: any) => [r.date, r.count]));
+
+    const growthData = dates.map(date => ({
+      date,
+      users: usersMap.get(date) || 0,
+      predictions: predictionsMap.get(date) || 0
+    }));
+
+    return c.json({ growth: growthData });
+  } catch (err: any) {
+    return c.json({ error: 'Error al obtener crecimiento diario: ' + err.message }, 500);
+  }
+});
+
+// GET /admin/analytics/users (Paginated and searchable user list)
+app.get('/admin/analytics/users', authRequired, adminRequired, async (c) => {
+  try {
+    const search = c.req.query('search') || '';
+    const page = parseInt(c.req.query('page') || '1');
+    const limit = parseInt(c.req.query('limit') || '50');
+    const sortBy = c.req.query('sortBy') || 'createdAt'; // createdAt, predictionsCount, totalPoints, groupsCount
+    
+    const offset = (page - 1) * limit;
+
+    // Sanitize sortBy to prevent SQL Injection
+    const allowedSortColumns = ['createdAt', 'predictionsCount', 'totalPoints', 'groupsCount'];
+    const sortColumn = allowedSortColumns.includes(sortBy) ? sortBy : 'createdAt';
+    
+    // Map to SQL representation
+    const sortMapping: Record<string, string> = {
+      createdAt: 'u.created_at',
+      predictionsCount: 'predictionsCount',
+      totalPoints: 'totalPoints',
+      groupsCount: 'groupsCount'
+    };
+
+    const sqlSort = sortMapping[sortColumn];
+
+    // Get count for pagination
+    const totalRes: any = await c.env.DB.prepare(
+      'SELECT COUNT(*) as count FROM users WHERE nickname LIKE ?'
+    ).bind(`%${search}%`).first();
+    const total = totalRes?.count || 0;
+
+    // Get paginated users with subqueries for counts
+    const { results: users } = await c.env.DB.prepare(`
+      SELECT 
+        u.id, 
+        u.nickname, 
+        u.avatar_url as avatarUrl, 
+        u.created_at as createdAt,
+        (SELECT COUNT(*) FROM group_members WHERE user_id = u.id) as groupsCount,
+        (SELECT COUNT(*) FROM predictions WHERE user_id = u.id) as predictionsCount,
+        COALESCE((SELECT SUM(points) FROM scores WHERE user_id = u.id), 0) as totalPoints
+      FROM users u
+      WHERE u.nickname LIKE ?
+      ORDER BY ${sqlSort} DESC
+      LIMIT ? OFFSET ?
+    `).bind(`%${search}%`, limit, offset).all();
+
+    return c.json({
+      users,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit)
+      }
+    });
+  } catch (err: any) {
+    return c.json({ error: 'Error al obtener listado de usuarios: ' + err.message }, 500);
+  }
+});
+
+// GET /admin/analytics/groups (Paginated and searchable groups/leagues list)
+app.get('/admin/analytics/groups', authRequired, adminRequired, async (c) => {
+  try {
+    const search = c.req.query('search') || '';
+    const page = parseInt(c.req.query('page') || '1');
+    const limit = parseInt(c.req.query('limit') || '50');
+    
+    const offset = (page - 1) * limit;
+
+    // Get count for pagination
+    const totalRes: any = await c.env.DB.prepare(
+      'SELECT COUNT(*) as count FROM groups WHERE name LIKE ? OR code LIKE ?'
+    ).bind(`%${search}%`, `%${search}%`).first();
+    const total = totalRes?.count || 0;
+
+    // Get groups list
+    const { results: groups } = await c.env.DB.prepare(`
+      SELECT 
+        g.id, 
+        g.name, 
+        g.code, 
+        g.image_url as imageUrl, 
+        g.created_at as createdAt,
+        u.nickname as adminNickname,
+        (SELECT COUNT(*) FROM group_members WHERE group_id = g.id) as membersCount,
+        (
+          SELECT COUNT(*) 
+          FROM predictions p 
+          JOIN group_members gm ON p.user_id = gm.user_id 
+          WHERE gm.group_id = g.id
+        ) as predictionsCount
+      FROM groups g
+      JOIN users u ON g.admin_user_id = u.id
+      WHERE g.name LIKE ? OR g.code LIKE ?
+      ORDER BY g.created_at DESC
+      LIMIT ? OFFSET ?
+    `).bind(`%${search}%`, `%${search}%`, limit, offset).all();
+
+    return c.json({
+      groups,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit)
+      }
+    });
+  } catch (err: any) {
+    return c.json({ error: 'Error al obtener listado de ligas: ' + err.message }, 500);
+  }
+});
+
+// GET /admin/analytics/fixtures (Stats and consensus per fixture/match)
+app.get('/admin/analytics/fixtures', authRequired, adminRequired, async (c) => {
+  try {
+    // 1. Fetch all predictions stats grouped by fixture
+    const { results: stats } = await c.env.DB.prepare(`
+      SELECT 
+        fixture_id as fixtureId,
+        COUNT(*) as totalPredictions,
+        AVG(home_goals) as avgHomeGoals,
+        AVG(away_goals) as avgAwayGoals,
+        SUM(CASE WHEN home_goals > away_goals THEN 1 ELSE 0 END) as homeWins,
+        SUM(CASE WHEN home_goals < away_goals THEN 1 ELSE 0 END) as awayWins,
+        SUM(CASE WHEN home_goals = away_goals THEN 1 ELSE 0 END) as draws
+      FROM predictions
+      GROUP BY fixture_id
+    `).all();
+
+    const statsMap = new Map(stats.map((s: any) => [s.fixtureId, s]));
+
+    // 2. Fetch fixtures list from KV namespace
+    let fixtures: any[] = [];
+    try {
+      const kvFixtures = await c.env.DATA_KV.get('wc2026:fixtures', 'json') as any[];
+      if (kvFixtures) {
+        fixtures = kvFixtures;
+      }
+    } catch (e) {
+      console.error('Error al leer partidos desde KV:', e);
+    }
+
+    // 3. Merge KV fixtures list with DB stats
+    const detailedFixtures = fixtures.map((f: any) => {
+      const fStats = statsMap.get(f.fixtureId || f.id) || {
+        totalPredictions: 0,
+        avgHomeGoals: 0,
+        avgAwayGoals: 0,
+        homeWins: 0,
+        awayWins: 0,
+        draws: 0
+      };
+
+      const total = fStats.totalPredictions || 0;
+      const homeWinsPct = total > 0 ? Math.round((fStats.homeWins / total) * 100) : 0;
+      const awayWinsPct = total > 0 ? Math.round((fStats.awayWins / total) * 100) : 0;
+      const drawsPct = total > 0 ? Math.round((fStats.draws / total) * 100) : 0;
+
+      return {
+        id: f.fixtureId || f.id,
+        date: f.date,
+        round: f.round,
+        status: f.status,
+        teams: {
+          home: f.teams?.home || f.homeTeam,
+          away: f.teams?.away || f.awayTeam
+        },
+        score: f.score || { home: f.homeGoals, away: f.awayGoals },
+        analytics: {
+          totalPredictions: total,
+          avgHomeGoals: parseFloat((fStats.avgHomeGoals || 0).toFixed(1)),
+          avgAwayGoals: parseFloat((fStats.avgAwayGoals || 0).toFixed(1)),
+          distribution: {
+            homeWinsPct,
+            awayWinsPct,
+            drawsPct
+          }
+        }
+      };
+    });
+
+    // Sort by total predictions descending to show most popular first
+    detailedFixtures.sort((a: any, b: any) => b.analytics.totalPredictions - a.analytics.totalPredictions);
+
+    return c.json({ fixtures: detailedFixtures });
+  } catch (err: any) {
+    return c.json({ error: 'Error al obtener estadísticas de partidos: ' + err.message }, 500);
+  }
+});
+
 
 export default app;
 
