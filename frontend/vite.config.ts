@@ -11,8 +11,8 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'mask-icon.svg'],
       manifest: {
-        name: 'PRODE-U — Mundial 2026',
-        short_name: 'PRODE-U',
+        name: 'PRODE — Mundial 2026',
+        short_name: 'PRODE',
         description: 'PWA de predicciones deportivas para el Mundial 2026',
         theme_color: '#080B14',
         background_color: '#080B14',

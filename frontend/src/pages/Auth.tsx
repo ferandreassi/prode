@@ -72,7 +72,7 @@ export const Auth: React.FC = () => {
         }}
       >
         <span className="mascot" style={{ fontSize: '54px', marginBottom: '8px' }}>⚽👾</span>
-        <h1 className="title-fun" style={{ fontSize: '38px' }}>PRODE-U</h1>
+        <h1 className="title-fun" style={{ fontSize: '38px' }}>PRODE</h1>
         <p className="subtitle-fun" style={{ fontSize: '11px', color: 'var(--yellow)', marginTop: '2px' }}>
           La app de predicciones definitiva
         </p>

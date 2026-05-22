@@ -66,7 +66,7 @@ const AppContent: React.FC = () => {
   const getHeaderTitle = () => {
     switch (activeTab) {
       case 'dashboard':
-        return 'PRODE-U';
+        return 'PRODE';
       case 'predictions':
         return 'PRONÓSTICOS';
       case 'groups':
@@ -74,7 +74,7 @@ const AppContent: React.FC = () => {
       case 'profile':
         return 'MI CUENTA';
       default:
-        return 'PRODE-U';
+        return 'PRODE';
     }
   };
 

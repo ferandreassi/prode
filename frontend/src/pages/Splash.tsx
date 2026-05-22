@@ -50,7 +50,7 @@ export const Splash: React.FC = () => {
 
       <div>
         <h1 className="title-fun" style={{ fontSize: '48px', color: 'var(--white)' }}>
-          PRODE-U
+          PRODE
         </h1>
         <p className="subtitle-fun" style={{ fontSize: '13px', marginTop: '6px', color: 'var(--yellow)' }}>
           Mundial 2026
