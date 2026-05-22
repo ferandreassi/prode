@@ -1,385 +1,107 @@
-# PRODE-U — Plan de Implementación
+# Inicialización del Frontend de PRODE-U con el nuevo diseño Sleek Sport-Tech
 
-## Visión General
+El objetivo es inicializar la aplicación real del frontend en `/frontend` utilizando **React + Vite + TypeScript**, configurando el sistema de diseño visual **Sleek Sport-Tech** y portando todas las pantallas, modales y flujos simulados del prototipo a componentes React modernos, modulares e interactivos.
 
-**PRODE-U** — Una PWA mobile-first con estética **futurista y tecnológica** que permite a usuarios crear grupos de amigos, hacer predicciones de partidos del Mundial 2026 y competir en un leaderboard en tiempo real.
+## User Review Required
 
----
+> [!IMPORTANT]
+> **Enfoque de Navegación Nativa Mobile-First**: 
+> Para replicar el comportamiento de transición súper fluida y el rendimiento de una aplicación nativa PWA en móviles (como se ve en el prototipo con transiciones CSS rápidas), utilizaremos un estado global de navegación (`currentScreen`). Esto asegura transiciones de pantalla instantáneas y soporte de animaciones fluido, sin el overhead ni parpadeos de carga de rutas tradicionales de escritorio.
 
-## 🏷️ Nombre de la App
+> [!TIP]
+> **Dicebear Avatars e Iconos FontAwesome**:
+> Utilizaremos el CDN de FontAwesome para cargar los íconos de forma limpia y mantendremos la integración con la API de Dicebear (`https://api.dicebear.com/7.x/bottts/svg`) para generar avatares robóticos interactivos instantáneamente en base al nickname del usuario, tal como en el prototipo.
 
-**PRODE-U** ✅ — Combinación de "Prode" (jerga rioplatense para quiniela deportiva) + "U" (universo, unión, usuarios). Corto, memorables y con identidad propia.
+## Open Questions
 
----
-
-## 🎨 Identidad Visual
-
-### Paleta de Colores
-- **Primario**: `#00E5FF` (Cyan eléctrico) — tecnológico, vibrante
-- **Secundario**: `#7B2FFF` (Violeta neón) — premium, futurista
-- **Fondo**: `#080B14` (Azul noche profundo) — dark mode base
-- **Superficie**: `#0F1629` (Azul carbón) — cards y paneles
-- **Acento**: `#FF3D71` (Rojo coral) — alertas, eliminación, peligro
-- **Texto primario**: `#FFFFFF`
-- **Texto secundario**: `#8899B4`
-
-### Tipografía
-- **Display / Headlines**: `Orbitron` (Google Fonts) — futurista, perfecta para marcadores
-- **Body / UI**: `Inter` — legible, moderna, profesional
-
-### Estética
-- Dark mode obligatorio con glassmorphism en cards
-- Gradientes de `#00E5FF` a `#7B2FFF`
-- Micro-animaciones en predicciones y puntuaciones
-- Líneas de grid/scan sutiles como fondo (estilo HUD futurista)
-- Efectos de glow en elementos activos
+No hay preguntas abiertas pendientes por el momento. La estructura se basará estrictamente en el prototipo estático que ya aprobaste, portando la lógica y el diseño 1:1 en componentes React de TypeScript de alta fidelidad.
 
 ---
 
-## 🗂️ Arquitectura del Proyecto
+## Proposed Changes
 
-```
-/prode-u/
-├── workers/
-│   ├── sync-worker/          # Cron job - sincroniza API-Football → KV
-│   ├── data-worker/          # Expone datos cacheados del KV
-│   └── api-worker/           # API principal (auth, grupos, predicciones)
-├── frontend/                 # React PWA (Vite) — app principal
-└── admin/                    # React app separada — panel de administración
-```
+### 1. Inicialización y Configuración Base
 
----
+Crearemos el directorio `/frontend` e inicializaremos un proyecto moderno de React + Vite + TypeScript de manera no interactiva usando el template oficial `react-ts`.
 
-## 🗄️ Servicios Backend
+#### [NEW] [package.json](file:///Users/fernandoandreassi/.gemini/antigravity/worktrees/Prode/redesign-ui-modern-style/frontend/package.json)
+Configurará las dependencias principales del proyecto de React:
+- React 18+
+- TypeScript
+- Vite para compilación ultra-rápida.
 
-### Worker 1: `sync-worker` (Cron cada 30 min)
+#### [NEW] [index.html](file:///Users/fernandoandreassi/.gemini/antigravity/worktrees/Prode/redesign-ui-modern-style/frontend/index.html)
+Punto de entrada de la aplicación que cargará las Google Fonts oficiales (`Space Grotesk` y `Plus Jakarta Sans`) y los estilos de FontAwesome para el diseño deportivo tecnológico.
 
-**Responsabilidades:**
-- Consume API-Football con token secret en env var `API_FOOTBALL_TOKEN`
-- Sincroniza fixtures del Mundial 2026 (ID de torneo: 1)
-- Guarda en KV: matches, resultados, equipos, logos
-- Cuando un partido termina, **dispara el cálculo de puntos** en D1
-
-**KV Keys:**
-```
-wc2026:fixtures              → Lista completa de partidos
-wc2026:fixture:{id}          → Detalle de un partido
-wc2026:teams                 → Lista de equipos con logos
-wc2026:standings             → Tabla de posiciones por grupo
-wc2026:last_sync             → Timestamp del último sync
-```
+#### [NEW] [vite.config.ts](file:///Users/fernandoandreassi/.gemini/antigravity/worktrees/Prode/redesign-ui-modern-style/frontend/vite.config.ts)
+Configuración de desarrollo y build de Vite, optimizada para puerto local.
 
 ---
 
-### Worker 2: `data-worker` (API pública de datos)
+### 2. Estilos Globales y Diseño Sleek Sport-Tech
 
-**Endpoints:**
-| Método | Ruta | Descripción |
-|--------|------|-------------|
-| `GET` | `/fixtures` | Todos los partidos (con filtros: status, round, date) |
-| `GET` | `/fixtures/:id` | Detalle de un partido |
-| `GET` | `/teams` | Equipos del torneo |
-| `GET` | `/standings` | Tabla de posiciones |
-
----
-
-### Worker 3: `api-worker` (API principal con D1)
-
-#### Auth
-| Método | Ruta | Descripción |
-|--------|------|-------------|
-| `POST` | `/auth/register` | Registro con nickname + password |
-| `POST` | `/auth/login` | Login, retorna JWT |
-| `POST` | `/auth/refresh` | Refresh token |
-
-#### Usuarios
-| Método | Ruta | Descripción |
-|--------|------|-------------|
-| `GET` | `/users/me` | Perfil del usuario actual |
-| `PUT` | `/users/me` | Editar nickname, avatar |
-| `GET` | `/users/me/groups` | Grupos a los que pertenece |
-| `GET` | `/users/me/stats` | Estadísticas globales del usuario |
-
-#### Grupos
-| Método | Ruta | Descripción |
-|--------|------|-------------|
-| `POST` | `/groups` | Crear grupo (genera código 4L+4N) |
-| `GET` | `/groups/:id` | Detalle del grupo |
-| `PUT` | `/groups/:id` | Editar nombre/imagen (solo admin) |
-| `DELETE` | `/groups/:id` | Eliminar grupo (solo admin) |
-| `POST` | `/groups/join` | Unirse con código |
-| `DELETE` | `/groups/:id/members/:userId` | Expulsar miembro (solo admin) |
-| `GET` | `/groups/:id/members` | Lista de miembros |
-| `GET` | `/groups/:id/leaderboard` | Tabla de posiciones del grupo |
-| `GET` | `/groups/:id/predictions/:fixtureId` | Predicciones de todos los miembros para un partido |
-
-#### Predicciones
-| Método | Ruta | Descripción |
-|--------|------|-------------|
-| `GET` | `/predictions/me` | Todas mis predicciones |
-| `POST` | `/predictions` | Crear/actualizar predicción (cierre: -1h del partido) |
-| `GET` | `/predictions/fixture/:id` | Mi predicción para un partido |
-
-#### Puntuaciones
-| Método | Ruta | Descripción |
-|--------|------|-------------|
-| `GET` | `/scores/me` | Mis puntos por partido |
-| `GET` | `/scores/group/:id` | Puntos de todos en un grupo |
-
-#### Admin Panel
-| Método | Ruta | Descripción |
-|--------|------|-------------|
-| `GET` | `/admin/fixtures` | Ver todos los fixtures |
-| `PUT` | `/admin/fixtures/:id` | Editar resultado manualmente |
-| `POST` | `/admin/fixtures/:id/recalculate` | Recalcular puntos de un partido |
+#### [NEW] [index.css](file:///Users/fernandoandreassi/.gemini/antigravity/worktrees/Prode/redesign-ui-modern-style/frontend/src/index.css)
+Heredará la paleta de colores Midnight-Neon de nuestro prototipo aprobado:
+- **Primario**: `#00E5FF` (Cian eléctrico / Blue)
+- **Secundario**: `#00FF87` (Verde tecnológico / Green)
+- **Fondo**: `#0B0C10` a `#1A1D29` (Gradiente Midnight)
+- **Cards**: Glassmorphism con bordes traslúcidos y micro-glows.
+- **Botones**: Planos con acentos neón elegantes sin relieve 3D exagerado.
 
 ---
 
-## 🗃️ Esquema de Base de Datos (D1 - SQLite)
+### 3. Estado Global de la Aplicación
 
-```sql
--- Usuarios
-CREATE TABLE users (
-  id TEXT PRIMARY KEY,                    -- UUID
-  nickname TEXT UNIQUE NOT NULL,
-  password_hash TEXT NOT NULL,
-  avatar_url TEXT,
-  created_at INTEGER NOT NULL,
-  updated_at INTEGER NOT NULL
-);
-
--- Grupos
-CREATE TABLE groups (
-  id TEXT PRIMARY KEY,                    -- UUID
-  name TEXT NOT NULL,
-  code TEXT UNIQUE NOT NULL,              -- 4 letras + 4 números
-  image_url TEXT,
-  admin_user_id TEXT NOT NULL,
-  max_members INTEGER DEFAULT 50,
-  created_at INTEGER NOT NULL,
-  FOREIGN KEY (admin_user_id) REFERENCES users(id)
-);
-
--- Miembros de grupos
-CREATE TABLE group_members (
-  group_id TEXT NOT NULL,
-  user_id TEXT NOT NULL,
-  joined_at INTEGER NOT NULL,
-  PRIMARY KEY (group_id, user_id),
-  FOREIGN KEY (group_id) REFERENCES groups(id) ON DELETE CASCADE,
-  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-);
-
--- Predicciones
-CREATE TABLE predictions (
-  id TEXT PRIMARY KEY,
-  user_id TEXT NOT NULL,
-  fixture_id INTEGER NOT NULL,           -- ID de API-Football
-  home_goals INTEGER NOT NULL,
-  away_goals INTEGER NOT NULL,
-  created_at INTEGER NOT NULL,
-  updated_at INTEGER NOT NULL,
-  UNIQUE (user_id, fixture_id),
-  FOREIGN KEY (user_id) REFERENCES users(id)
-);
-
--- Puntuaciones (calculadas al finalizar el partido)
-CREATE TABLE scores (
-  id TEXT PRIMARY KEY,
-  user_id TEXT NOT NULL,
-  fixture_id INTEGER NOT NULL,
-  points INTEGER NOT NULL DEFAULT 0,     -- 0, 1, 3, 4, 7
-  score_type TEXT,                       -- EXACT, WINNER_DIFF, WINNER, PARTIAL, MISS
-  calculated_at INTEGER NOT NULL,
-  UNIQUE (user_id, fixture_id),
-  FOREIGN KEY (user_id) REFERENCES users(id)
-);
-```
+#### [NEW] [store.ts](file:///Users/fernandoandreassi/.gemini/antigravity/worktrees/Prode/redesign-ui-modern-style/frontend/src/store.ts)
+Un manejador de estado ligero (usando un custom hook o Context) para coordinar:
+- Usuario actual (`currentUser` con su nickname y puntos).
+- Pantalla activa (`currentScreen`).
+- Listado de grupos (incluyendo el grupo creado o unido dinámicamente).
+- Listado de predicciones y partidos con soporte para hacer predicciones en tiempo real.
+- Tabla comparativa de resultados por partido (`MOCK_MATCH_LEADERBOARDS`).
 
 ---
 
-## 📱 Pantallas de la App
+### 4. Componentes y Pantallas React
 
-### 1. **Splash Screen**
-- Logo animado con efecto glow
-- Tagline de la app
-- Transición automática a Login/Register
+Portaremos las 8 pantallas principales del prototipo a componentes modulares dentro de `/src/screens/` y `/src/components/`:
 
-### 2. **Auth Screen**
-- Tabs: Login / Registro
-- Login: Nickname + Password
-- Registro: Nickname + Password + Confirmar password
-- Avatar placeholder seleccionable al registrarse
+#### [NEW] [App.tsx](file:///Users/fernandoandreassi/.gemini/antigravity/worktrees/Prode/redesign-ui-modern-style/frontend/src/App.tsx)
+Componente contenedor principal de la PWA que encapsula el marco del dispositivo móvil, las burbujas decorativas animadas de fondo, la barra de navegación inferior y el renderizado condicional de las pantallas activas con efectos de transición suaves.
 
-### 3. **Home / Dashboard**
-- Greeting con nombre del usuario
-- **Próximo partido** con countdown animado
-- Mis grupos (cards horizontales con scroll)
-- Predicciones pendientes (badge con número)
-- Resultado de últimos partidos que predije
+#### [NEW] [Screens](file:///Users/fernandoandreassi/.gemini/antigravity/worktrees/Prode/redesign-ui-modern-style/frontend/src/screens)
+- `SplashScreen.tsx`: Pantalla de bienvenida con logo animado y entrada táctil interactiva.
+- `AuthScreen.tsx`: Login y registro con tabs modernas y selección dinámica de avatar.
+- `DashboardScreen.tsx`: Vista principal con widgets informativos, cuenta regresiva del partido inaugural y scroll horizontal de grupos.
+- `PredictionsScreen.tsx`: Hub completo de predicciones por fases del Mundial con filtros dinámicos (Todos / Pendientes / Realizados).
+- `GroupsScreen.tsx`: Listado de grupos del usuario con botones flotantes para crear o unirse.
+- `GroupDetailScreen.tsx`: Detalle de grupo con pestañas interactivas (🏆 Leaderboard, ⚽ Partidos, 👥 Miembros, ⚙️ Configuración del grupo).
+- `ProfileScreen.tsx`: Estadísticas detalladas de puntos, partidos predichos y aciertos exactos, cambio de idioma y de avatar.
+- `MatchLeaderboardScreen.tsx`: Tabla comparativa detallada de puntuaciones post-partido entre amigos de un grupo.
 
-### 4. **Mis Grupos**
-- Lista de grupos con foto, nombre, posición en el ranking y miembros
-- FAB para crear o unirse a grupo
-
-### 5. **Crear Grupo**
-- Nombre del grupo
-- Upload de imagen del grupo
-- Se genera el código automáticamente (copiable)
-
-### 6. **Unirse a Grupo**
-- Input con formato de código (4 letras + 4 números)
-- Preview del grupo antes de confirmar
-
-### 7. **Detalle de Grupo**
-- Header con imagen, nombre y código
-- Tabs:
-  - **🏆 Leaderboard**: ranking animado de miembros con puntos
-  - **⚽ Partidos**: todos los partidos con estado de predicción por miembro
-  - **👥 Miembros**: lista de integrantes (con opción de expulsar si eres admin)
-  - **⚙️ Config** (solo admin): editar nombre, imagen
-
-### 8. **Hub de Predicciones**
-- Partidos agrupados por ronda (Grupo A, B... Octavos, Cuartos, etc.)
-- Filtros: Todos / Pendientes / Realizados
-- Cada partido muestra:
-  - Equipos con banderas
-  - Fecha y hora (local)
-  - Mi predicción (si existe) o botón "Predecir"
-  - Tiempo restante para cerrar predicción
-  - Estado: `OPEN` / `LOCKED` / `FINISHED`
-
-### 9. **Hacer Predicción**
-- Modal o pantalla dedicada
-- Selección de goles con +/- buttons (estilo futurista)
-- Preview del resultado predicho con los escudos
-- Indicador de tiempo límite
-- Botón confirmar con animación
-
-### 10. **Detalle de Partido** (post-match)
-- Resultado final destacado
-- Mi predicción y puntos obtenidos con animación
-- Predicciones de todos en mi grupo (tabla comparativa)
-
-### 11. **Perfil de Usuario**
-- Avatar editable
-- Nickname
-- Estadísticas: partidos predichos, puntos totales, aciertos exactos
-- Lista de grupos
-
-### 12. **Admin Panel** (acceso especial)
-- Lista de fixtures del torneo
-- Edición manual de resultados
-- Botón para recalcular puntos de un partido
+#### [NEW] [Modals & Utilities](file:///Users/fernandoandreassi/.gemini/antigravity/worktrees/Prode/redesign-ui-modern-style/frontend/src/components)
+- `PredictModal.tsx`: Spinner interactivo futurista de +/- goles para realizar predicciones.
+- `CreateGroupModal.tsx`: Formulario de creación de grupos con código auto-generado.
+- `JoinGroupModal.tsx`: Formulario de unión a grupo con validación de código de 8 caracteres.
+- `GroupSettingsModal.tsx`: Gestión administrativa del grupo (editar nombre, borrar grupo).
+- `Header.tsx` y `BottomNav.tsx`: Barras de navegación superior e inferior de la PWA.
 
 ---
 
-## 🔐 Seguridad
+## Verification Plan
 
-- **JWT tokens** (access: 1h, refresh: 7 días)
-- Contraseñas hasheadas con **bcrypt** (implementado en el Worker con WebCrypto API)
-- Rate limiting en endpoints de auth
-- Validación de cierre de predicciones en el servidor (no solo en frontend)
-
----
-
-## 🧮 Lógica de Puntuación
-
-```typescript
-function calculatePoints(
-  prediction: { home: number; away: number },
-  result: { home: number; away: number }
-): { points: number; type: ScoreType } {
-  // Exact score (7 pts)
-  if (prediction.home === result.home && prediction.away === result.away)
-    return { points: 7, type: 'EXACT' };
-
-  const predDiff = prediction.home - prediction.away;
-  const resDiff = result.home - result.away;
-  const predOutcome = Math.sign(predDiff);
-  const resOutcome = Math.sign(resDiff);
-
-  // Winner + Goal Difference (4 pts)
-  if (predOutcome === resOutcome && predDiff === resDiff)
-    return { points: 4, type: 'WINNER_DIFF' };
-
-  // Winner / Draw (3 pts)
-  if (predOutcome === resOutcome)
-    return { points: 3, type: 'WINNER' };
-
-  // Partial: one team's goals correct (1 pt)
-  if (prediction.home === result.home || prediction.away === result.away)
-    return { points: 1, type: 'PARTIAL' };
-
-  return { points: 0, type: 'MISS' };
-}
-```
-
----
-
-## 📦 Stack Tecnológico
-
-| Capa | Tecnología |
-|------|-----------|
-| Frontend (main) | React + Vite + TypeScript — PWA mobile-first |
-| Frontend (admin) | React + Vite + TypeScript — app separada |
-| Estilos | Vanilla CSS (CSS Variables + diseño propio) |
-| PWA | Vite PWA Plugin + Service Worker |
-| State | Zustand + TanStack Query |
-| Routing | React Router v6 |
-| Backend | Cloudflare Workers (Hono framework) |
-| Base de datos | Cloudflare D1 (SQLite) |
-| Cache | Cloudflare KV |
-| Storage | Cloudflare R2 (avatares de usuarios e imágenes de grupos) |
-| Fuente de datos | API-Football |
-| Auth | JWT (Jose library para Workers) |
-| Deploy | Cloudflare Pages + Workers (dominio interno `*.workers.dev` / `*.pages.dev`) |
-
----
-
-## 📋 Fases de Implementación
-
-### Fase 1 — Backend Core
-- [ ] Setup del monorepo `/prode-u/` con Wrangler (3 workers + D1 + KV + R2)
-- [ ] Schema de D1 + migraciones
-- [ ] `sync-worker`: cron job de API-Football → KV
-- [ ] `data-worker`: endpoints de fixtures/equipos
-- [ ] `api-worker`: auth + usuarios
-- [ ] R2 bucket para imágenes (upload endpoint con signed URLs)
-
-### Fase 2 — Grupos y Predicciones
-- [ ] CRUD de grupos con generación de código (4L+4N)
-- [ ] Sistema de predicciones con validación de cierre (1h antes)
-- [ ] Motor de puntuación y cálculo automático post-partido
-- [ ] Leaderboard por grupo
-
-### Fase 3 — Frontend Principal (PRODE-U)
-- [ ] Setup Vite + React + PWA (`/frontend`)
-- [ ] Design system PRODE-U (CSS variables, tokens, componentes base)
-- [ ] Splash + Auth screens (Login / Registro)
-- [ ] Home Dashboard + Mis Grupos
-
-### Fase 4 — Features Principales
-- [ ] Pantallas de grupos (crear, unirse, detalle, leaderboard)
-- [ ] Hub de predicciones + formulario de predicción animado
-- [ ] Detalle de partido post-match
-- [ ] Perfil de usuario + edición de avatar (R2)
-
-### Fase 5 — Admin App & Polish
-- [ ] App de admin separada (`/admin`) con Vite + React
-- [ ] Gestión de fixtures y resultados manuales
-- [ ] Recálculo de puntos
-- [ ] Micro-animaciones y polish
-- [ ] PWA offline support
-- [ ] i18n (ES / EN)
-
----
-
-## ✅ Decisiones Confirmadas
-
-| Decisión | Elección |
-|----------|----------|
-| Nombre | **PRODE-U** |
-| Storage de imágenes | **Cloudflare R2** |
-| Admin Panel | **App separada** (`/admin`) |
-| Dominio | **Cloudflare interno** (`*.workers.dev` / `*.pages.dev`) |
+### Manual Verification
+1. Inicializar la app usando `npm run dev` en un puerto local como `3000` o `3005`.
+2. Validar en el navegador la perfecta coherencia visual:
+   - Tipografías cargadas correctamente (`Space Grotesk` para títulos, `Plus Jakarta Sans` para textos).
+   - Fondos degradados y círculos decorativos flotantes activos.
+   - Glassmorphism de las tarjetas con transparencias de fondo fluidas.
+   - Micro-animaciones al presionar botones (efecto de escala) y al interactuar.
+3. Testear el flujo completo de la app:
+   - Transición del Splash al Auth.
+   - Login/Registro con actualización de avatar dinámico (Dicebear).
+   - Crear un grupo nuevo y verificar que aparezca inmediatamente en el Dashboard y la pantalla de Grupos.
+   - Unirse a un grupo con un código simulado y validar su adición.
+   - Entrar al hub de predicciones, filtrar por estado y usar el modal de goles para editar o crear una predicción con los botones +/-.
+   - Navegar al detalle de un partido finalizado para ver la tabla comparativa detallada.
+   - Modificar avatar desde la pantalla de perfil y confirmar que se propague a todos los componentes de la interfaz.
