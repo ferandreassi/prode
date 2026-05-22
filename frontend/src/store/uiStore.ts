@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 
-export type TabType = 'dashboard' | 'predictions' | 'groups' | 'profile';
+export type TabType = 'dashboard' | 'predictions' | 'groups' | 'profile' | 'admin';
 
 interface Toast {
   message: string;

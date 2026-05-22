@@ -27,7 +27,10 @@ interface Prediction {
 export const Profile: React.FC = () => {
   const queryClient = useQueryClient();
   const { user, logout, updateUser } = useAuthStore();
-  const { showToast } = useUIStore();
+  const { showToast, setActiveTab } = useUIStore();
+
+  const adminList = (import.meta.env.VITE_ADMIN_NICKNAMES || 'admin,fernando').split(',').map((n: string) => n.trim().toLowerCase());
+  const isAdmin = user && adminList.includes(user.nickname.toLowerCase());
 
   const [nickname, setNickname] = useState(user?.nickname || '');
   const [avatarUrl, setAvatarUrl] = useState(user?.avatarUrl || '');
@@ -278,6 +281,22 @@ export const Profile: React.FC = () => {
           </button>
         </form>
       </div>
+
+      {/* Admin Panel button */}
+      {isAdmin && (
+        <button 
+          onClick={() => setActiveTab('admin')}
+          className="btn btn-blue" 
+          style={{
+            marginTop: '24px',
+            boxShadow: '0 0 15px rgba(0, 240, 255, 0.4)',
+            display: 'flex',
+            gap: '8px'
+          }}
+        >
+          <span>⚙️ PANEL DE CONTROL ADMIN</span>
+        </button>
+      )}
 
       {/* Logout button */}
       <button 

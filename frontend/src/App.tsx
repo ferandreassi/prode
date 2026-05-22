@@ -7,6 +7,7 @@ import { Dashboard } from '@/pages/Dashboard';
 import { PredictionsHub } from '@/pages/PredictionsHub';
 import { GroupsHub } from '@/pages/GroupsHub';
 import { Profile } from '@/pages/Profile';
+import { AdminDashboard } from '@/pages/AdminDashboard';
 import { Navbar } from '@/components/Navbar';
 import { PredictModal } from '@/components/PredictModal';
 import { RulesModal } from '@/components/RulesModal';
@@ -34,7 +35,7 @@ const queryClient = new QueryClient({
 });
 
 const AppContent: React.FC = () => {
-  const { isAuthenticated, isLoading } = useAuthStore();
+  const { isAuthenticated, isLoading, user } = useAuthStore();
   const { activeTab, toast } = useUIStore();
 
   // 1. Show Animated Splash on initial load
@@ -58,6 +59,12 @@ const AppContent: React.FC = () => {
         return <GroupsHub />;
       case 'profile':
         return <Profile />;
+      case 'admin':
+        const adminList = (import.meta.env.VITE_ADMIN_NICKNAMES || 'admin,fernando').split(',').map((n: string) => n.trim().toLowerCase());
+        if (user && adminList.includes(user.nickname.toLowerCase())) {
+          return <AdminDashboard />;
+        }
+        return <Dashboard />;
       default:
         return <Dashboard />;
     }
@@ -73,6 +80,8 @@ const AppContent: React.FC = () => {
         return 'LIGAS';
       case 'profile':
         return 'MI CUENTA';
+      case 'admin':
+        return 'ADMINISTRACIÓN';
       default:
         return 'PRODE';
     }
