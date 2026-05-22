@@ -12,7 +12,7 @@ export const RulesModal: React.FC = () => {
       title: 'Marcador Exacto',
       points: '+7',
       pointsLabel: 'puntos',
-      description: 'Le atinaste al resultado exacto del partido. ¡Eres un gurú!',
+      description: 'Le acertaste al resultado exacto del partido. ¡Eres un gurú!',
       example: 'Pronóstico: 2-1 | Resultado: 2-1',
       icon: <Sparkles size={20} />,
       borderColor: 'var(--green)',
@@ -48,7 +48,7 @@ export const RulesModal: React.FC = () => {
       title: 'Acierto Parcial',
       points: '+1',
       pointsLabel: 'punto',
-      description: 'No acertaste ganador, pero le atinaste a los goles de un equipo.',
+      description: 'No acertaste ganador, pero le acertaste a los goles de un equipo.',
       example: 'Pronóstico: 2-1 | Resultado: 0-1 (gol visitante ok)',
       icon: <Target size={20} />,
       borderColor: 'var(--purple)',
@@ -72,12 +72,12 @@ export const RulesModal: React.FC = () => {
 
   return (
     <div className="modal active" onClick={closeRulesModal}>
-      <div 
-        className="modal-body" 
+      <div
+        className="modal-body"
         onClick={(e) => e.stopPropagation()}
-        style={{ 
-          maxHeight: '85%', 
-          display: 'flex', 
+        style={{
+          maxHeight: '85%',
+          display: 'flex',
           flexDirection: 'column',
           borderRadius: '28px 28px 0 0',
           borderTop: '3px solid var(--yellow)',
@@ -114,10 +114,10 @@ export const RulesModal: React.FC = () => {
         </div>
 
         {/* Illustrated Cards Scroll Area */}
-        <div 
-          style={{ 
-            flex: 1, 
-            overflowY: 'auto', 
+        <div
+          style={{
+            flex: 1,
+            overflowY: 'auto',
             paddingRight: '4px',
             display: 'flex',
             flexDirection: 'column',
@@ -171,9 +171,9 @@ export const RulesModal: React.FC = () => {
                   <span style={{ fontFamily: 'var(--font-fun)', fontSize: '14px', fontWeight: '800', letterSpacing: '0.3px' }}>
                     {rule.title}
                   </span>
-                  
+
                   {/* Point Badge */}
-                  <span 
+                  <span
                     style={{
                       background: rule.badgeBg,
                       color: rule.badgeColor,
@@ -194,8 +194,8 @@ export const RulesModal: React.FC = () => {
                 </p>
 
                 {/* Illustrated Example Box */}
-                <div 
-                  style={{ 
+                <div
+                  style={{
                     marginTop: '4px',
                     padding: '4px 8px',
                     background: 'rgba(0, 0, 0, 0.15)',

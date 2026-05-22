@@ -35,6 +35,11 @@
   -webkit-tap-highlight-color: transparent;
 }
 
+/* Prevent double-click to zoom on touch devices */
+html, body, button, input, select, textarea, a, .card, .btn, .tab, .chip, .nav-item {
+  touch-action: manipulation;
+}
+
 body {
   background: radial-gradient(circle at center, #1b0a3c 0%, #070313 100%);
   min-height: 100vh;
@@ -345,7 +350,7 @@ body::after {
   padding: 14px 16px;
   color: #fff;
   font-family: var(--font-body);
-  font-size: 15px;
+  font-size: 16px; /* 16px prevents automatic zoom-on-focus on iOS devices */
   font-weight: 700;
   outline: none;
   transition: all 0.25s ease;
