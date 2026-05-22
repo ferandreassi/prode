@@ -213,6 +213,47 @@ app.put('/users/me', authRequired, async (c) => {
   }
 });
 
+// PUT /users/me/password
+app.put('/users/me/password', authRequired, async (c) => {
+  try {
+    const userPayload = c.get('user');
+    const { currentPassword, newPassword } = await c.req.json();
+
+    if (!currentPassword || !newPassword) {
+      return c.json({ error: 'La contraseña actual y la nueva son requeridas.' }, 400);
+    }
+
+    if (newPassword.length < 6) {
+      return c.json({ error: 'La nueva contraseña debe tener al menos 6 caracteres.' }, 400);
+    }
+
+    // Retrieve the user from the database to verify the current password
+    const user: any = await c.env.DB.prepare(
+      'SELECT password_hash FROM users WHERE id = ?'
+    ).bind(userPayload.userId).first();
+
+    if (!user) {
+      return c.json({ error: 'Usuario no encontrado.' }, 404);
+    }
+
+    const isValid = await verifyPassword(currentPassword, user.password_hash);
+    if (!isValid) {
+      return c.json({ error: 'La contraseña actual es incorrecta.' }, 401);
+    }
+
+    const newPasswordHash = await hashPassword(newPassword);
+    const now = Date.now();
+
+    await c.env.DB.prepare(
+      'UPDATE users SET password_hash = ?, updated_at = ? WHERE id = ?'
+    ).bind(newPasswordHash, now, userPayload.userId).run();
+
+    return c.json({ message: 'Contraseña actualizada con éxito.' });
+  } catch (err: any) {
+    return c.json({ error: 'Error al cambiar contraseña: ' + err.message }, 500);
+  }
+});
+
 // GET /users/me/groups
 app.get('/users/me/groups', authRequired, async (c) => {
   try {
