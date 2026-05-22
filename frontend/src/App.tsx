@@ -9,6 +9,7 @@ import { GroupsHub } from '@/pages/GroupsHub';
 import { Profile } from '@/pages/Profile';
 import { Navbar } from '@/components/Navbar';
 import { PredictModal } from '@/components/PredictModal';
+import { RulesModal } from '@/components/RulesModal';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -125,6 +126,9 @@ const AppContent: React.FC = () => {
 
       {/* Common Floating Predictions Modal */}
       <PredictModal />
+
+      {/* Scoring Rules Modal */}
+      <RulesModal />
 
       {/* Bottom Sticky Mobile Navbar */}
       <Navbar />

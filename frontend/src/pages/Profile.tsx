@@ -14,6 +14,7 @@ interface Fixture {
   homeTeam: { name: string; flag: string; code: string };
   awayTeam: { name: string; flag: string; code: string };
   goals: { home: number | null; away: number | null };
+  venue?: { name: string; city: string } | null;
 }
 
 interface Prediction {
