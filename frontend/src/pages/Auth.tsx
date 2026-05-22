@@ -53,8 +53,8 @@ export const Auth: React.FC = () => {
   };
 
   return (
-    <div 
-      className="screen active" 
+    <div
+      className="screen active"
       style={{
         background: 'var(--screen-gradient)',
         justifyContent: 'center',
@@ -62,7 +62,7 @@ export const Auth: React.FC = () => {
         overflowY: 'auto'
       }}
     >
-      <div 
+      <div
         style={{
           display: 'flex',
           flexDirection: 'column',
@@ -81,13 +81,13 @@ export const Auth: React.FC = () => {
       <div className="card" style={{ background: 'rgba(255, 255, 255, 0.08)', border: '2px solid rgba(255,255,255,0.1)' }}>
         {/* Switch tabs */}
         <div className="tabs">
-          <div 
+          <div
             className={`tab ${isLoginTab ? 'active' : ''}`}
             onClick={() => handleTabChange(true)}
           >
             Ingresar
           </div>
-          <div 
+          <div
             className={`tab ${!isLoginTab ? 'active' : ''}`}
             onClick={() => handleTabChange(false)}
           >
@@ -96,7 +96,7 @@ export const Auth: React.FC = () => {
         </div>
 
         {errorMsg && (
-          <div 
+          <div
             style={{
               background: 'rgba(255, 107, 107, 0.15)',
               border: '2px solid var(--red)',
@@ -118,7 +118,7 @@ export const Auth: React.FC = () => {
 
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <div>
-            <label 
+            <label
               style={{
                 display: 'block',
                 fontSize: '11px',
@@ -144,7 +144,7 @@ export const Auth: React.FC = () => {
           </div>
 
           <div>
-            <label 
+            <label
               style={{
                 display: 'block',
                 fontSize: '11px',
@@ -169,16 +169,16 @@ export const Auth: React.FC = () => {
             />
           </div>
 
-          <button 
-            type="submit" 
-            className={`btn ${isLoginTab ? 'btn-yellow' : 'btn-green'}`} 
+          <button
+            type="submit"
+            className={`btn ${isLoginTab ? 'btn-yellow' : 'btn-green'}`}
             disabled={isSubmitting}
             style={{ marginTop: '10px' }}
           >
             {isLoginTab ? <LogIn size={18} /> : <UserPlus size={18} />}
             <span>
-              {isSubmitting 
-                ? (isLoginTab ? 'Ingresando...' : 'Registrando...') 
+              {isSubmitting
+                ? (isLoginTab ? 'Ingresando...' : 'Registrando...')
                 : (isLoginTab ? 'Entrar a Jugar' : 'Crear Cuenta')
               }
             </span>
@@ -187,7 +187,7 @@ export const Auth: React.FC = () => {
       </div>
 
       <div style={{ textAlign: 'center', marginTop: '16px', fontSize: '11px', color: 'var(--text-muted)' }}>
-        Mundial de la FIFA 2026™ • Mobile-First PWA
+        Mundial de futbol • 2026
       </div>
     </div>
   );
