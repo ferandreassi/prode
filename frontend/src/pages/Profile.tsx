@@ -3,7 +3,7 @@ import { useAuthStore } from '@/store/authStore';
 import { useUIStore } from '@/store/uiStore';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api, getAvatarUrl } from '@/services/api';
-import { LogOut, User, ShieldCheck, Camera } from 'lucide-react';
+import { LogOut, User, ShieldCheck, Camera, Lock } from 'lucide-react';
 import { calculatePoints } from './PredictionsHub';
 
 interface Fixture {
@@ -35,6 +35,10 @@ export const Profile: React.FC = () => {
   const [nickname, setNickname] = useState(user?.nickname || '');
   const [avatarUrl, setAvatarUrl] = useState(user?.avatarUrl || '');
   const [uploading, setUploading] = useState(false);
+
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
 
   // Synchronize local states when user object loads or updates
   useEffect(() => {
@@ -154,6 +158,42 @@ export const Profile: React.FC = () => {
     saveMutation.mutate({
       nickname: nickname.trim(),
       avatarUrl: avatarUrl
+    });
+  };
+
+  // Mutation to Change Password (PUT /users/me/password)
+  const changePasswordMutation = useMutation({
+    mutationFn: async (payload: { currentPassword: string; newPassword: string }) => {
+      return await api.put('/users/me/password', payload);
+    },
+    onSuccess: () => {
+      showToast('¡Contraseña actualizada con éxito!', 'success');
+      setCurrentPassword('');
+      setNewPassword('');
+      setConfirmPassword('');
+    },
+    onError: (err: any) => {
+      showToast(err.message || 'Error al cambiar la contraseña.', 'error');
+    }
+  });
+
+  const handleChangePassword = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!currentPassword) {
+      showToast('Por favor, ingresa tu contraseña actual.', 'error');
+      return;
+    }
+    if (newPassword.length < 6) {
+      showToast('La nueva contraseña debe tener al menos 6 caracteres.', 'error');
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      showToast('Las contraseñas nuevas no coinciden.', 'error');
+      return;
+    }
+    changePasswordMutation.mutate({
+      currentPassword,
+      newPassword
     });
   };
 
@@ -278,6 +318,72 @@ export const Profile: React.FC = () => {
           >
             <ShieldCheck size={18} />
             {saveMutation.isPending ? 'Guardando...' : 'Confirmar Cambios'}
+          </button>
+        </form>
+      </div>
+
+      {/* Change Password Form */}
+      <div className="card" style={{ background: 'rgba(255, 255, 255, 0.08)', padding: '18px', marginTop: '16px' }}>
+        <h3 style={{ fontFamily: 'var(--font-fun)', fontSize: '15px', color: 'var(--yellow)', marginBottom: '14px', display: 'flex', gap: '6px', alignItems: 'center' }}>
+          <Lock size={16} /> Cambiar Contraseña
+        </h3>
+
+        <form onSubmit={handleChangePassword} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <div>
+            <label style={{ display: 'block', fontSize: '11px', fontWeight: '900', textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: '6px' }}>
+              Contraseña Actual
+            </label>
+            <input
+              type="password"
+              className="input"
+              value={currentPassword}
+              onChange={(e) => setCurrentPassword(e.target.value)}
+              disabled={changePasswordMutation.isPending}
+              placeholder="••••••••"
+              required
+            />
+          </div>
+
+          <div>
+            <label style={{ display: 'block', fontSize: '11px', fontWeight: '900', textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: '6px' }}>
+              Nueva Contraseña
+            </label>
+            <input
+              type="password"
+              className="input"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              disabled={changePasswordMutation.isPending}
+              placeholder="Mínimo 6 caracteres"
+              minLength={6}
+              required
+            />
+          </div>
+
+          <div>
+            <label style={{ display: 'block', fontSize: '11px', fontWeight: '900', textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: '6px' }}>
+              Confirmar Nueva Contraseña
+            </label>
+            <input
+              type="password"
+              className="input"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              disabled={changePasswordMutation.isPending}
+              placeholder="••••••••"
+              minLength={6}
+              required
+            />
+          </div>
+
+          <button 
+            type="submit" 
+            className="btn btn-green" 
+            disabled={changePasswordMutation.isPending}
+            style={{ display: 'flex', gap: '8px' }}
+          >
+            <ShieldCheck size={18} />
+            {changePasswordMutation.isPending ? 'Actualizando...' : 'Actualizar Contraseña'}
           </button>
         </form>
       </div>
