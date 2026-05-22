@@ -187,7 +187,7 @@ export const Auth: React.FC = () => {
       </div>
 
       <div style={{ textAlign: 'center', marginTop: '16px', fontSize: '11px', color: 'var(--text-muted)' }}>
-        Mundial de futbol • 2026
+        Mundial de futbol 2026 • un Tsunami
       </div>
     </div>
   );
