@@ -67,7 +67,11 @@ async function performSync(env: Env) {
           goals: {
             home: item.goals.home,
             away: item.goals.away
-          }
+          },
+          venue: item.fixture.venue ? {
+            name: item.fixture.venue.name,
+            city: item.fixture.venue.city
+          } : null
         }));
       }
     } catch (fetchErr) {

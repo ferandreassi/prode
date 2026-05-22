@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api, getAvatarUrl } from '@/services/api';
 import { useAuthStore } from '@/store/authStore';
 import { useUIStore } from '@/store/uiStore';
-import { ArrowLeft, Settings, UserMinus, ShieldAlert, Edit, Trash2, Lock, Eye, Copy, Check } from 'lucide-react';
+import { ArrowLeft, Settings, UserMinus, ShieldAlert, Edit, Trash2, Lock, Eye, Copy, Check, MapPin } from 'lucide-react';
 import { TeamFlag } from '@/components/TeamFlag';
 
 interface GroupDetailProps {
@@ -47,6 +47,7 @@ interface Fixture {
   homeTeam: { name: string; flag: string; code: string };
   awayTeam: { name: string; flag: string; code: string };
   goals: { home: number | null; away: number | null };
+  venue?: { name: string; city: string } | null;
 }
 
 export const GroupDetail: React.FC<GroupDetailProps> = ({ groupId, onBack }) => {
@@ -454,6 +455,13 @@ export const GroupDetail: React.FC<GroupDetailProps> = ({ groupId, onBack }) => 
                         <div style={{ fontSize: '10px', fontWeight: '800', color: 'var(--text-muted)', textTransform: 'uppercase', textAlign: 'center', marginBottom: '8px' }}>
                           {match.round}
                         </div>
+                        
+                        {match.venue && (
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', fontSize: '10px', color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', marginBottom: '10px' }}>
+                            <MapPin size={10} style={{ color: 'var(--yellow)' }} />
+                            <span>{match.venue.city ? `${match.venue.name} (${match.venue.city})` : match.venue.name}</span>
+                          </div>
+                        )}
                         
                         <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '16px' }}>
                           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '35%' }}>

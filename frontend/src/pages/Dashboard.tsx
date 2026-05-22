@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { api, getAvatarUrl } from '@/services/api';
 import { useAuthStore } from '@/store/authStore';
 import { useUIStore } from '@/store/uiStore';
-import { ArrowRight, Gamepad2, Calendar } from 'lucide-react';
+import { ArrowRight, Gamepad2, Calendar, MapPin } from 'lucide-react';
 import { TeamFlag } from '@/components/TeamFlag';
 
 interface Group {
@@ -22,6 +22,7 @@ interface Fixture {
   homeTeam: { name: string; flag: string; code: string };
   awayTeam: { name: string; flag: string; code: string };
   goals: { home: number | null; away: number | null };
+  venue?: { name: string; city: string } | null;
 }
 
 export const Dashboard: React.FC = () => {
@@ -235,6 +236,25 @@ export const Dashboard: React.FC = () => {
               </span>
             </div>
           </div>
+
+          {/* Sede/Estadio */}
+          {nextMatch.venue && (
+            <div 
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '6px',
+                fontSize: '11px',
+                color: 'rgba(255, 255, 255, 0.45)',
+                fontWeight: '500',
+                marginBottom: '14px'
+              }}
+            >
+              <MapPin size={12} style={{ color: 'var(--yellow)' }} />
+              <span>{nextMatch.venue.city ? `${nextMatch.venue.name} (${nextMatch.venue.city})` : nextMatch.venue.name}</span>
+            </div>
+          )}
 
           {/* Live Countdown Grid */}
           <div style={{ background: 'rgba(0,0,0,0.15)', padding: '12px', borderRadius: '14px', marginBottom: '16px' }}>

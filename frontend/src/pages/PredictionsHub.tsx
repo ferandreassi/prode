@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { api } from '@/services/api';
 import { useUIStore } from '@/store/uiStore';
-import { Calendar, Lock, Edit2, Gamepad2 } from 'lucide-react';
+import { Calendar, Lock, Edit2, Gamepad2, MapPin, HelpCircle } from 'lucide-react';
 import { TeamFlag } from '@/components/TeamFlag';
 
 interface Fixture {
@@ -13,6 +13,7 @@ interface Fixture {
   homeTeam: { name: string; flag: string; code: string };
   awayTeam: { name: string; flag: string; code: string };
   goals: { home: number | null; away: number | null };
+  venue?: { name: string; city: string } | null;
 }
 
 interface Prediction {
@@ -59,7 +60,7 @@ export function calculatePoints(
 }
 
 export const PredictionsHub: React.FC = () => {
-  const { openPredictModal } = useUIStore();
+  const { openPredictModal, openRulesModal } = useUIStore();
   const [filter, setFilter] = useState<FilterType>('todos');
 
   // 1. Fetch public matches from data-worker
@@ -137,11 +138,49 @@ export const PredictionsHub: React.FC = () => {
 
   return (
     <div className="scroll">
-      <div style={{ marginBottom: '16px' }}>
-        <h2 style={{ fontFamily: 'var(--font-fun)', fontSize: '24px' }}>Rondas y Partidos</h2>
-        <p style={{ fontSize: '11px', fontWeight: '800', color: 'var(--yellow)', textTransform: 'uppercase', letterSpacing: '1px', marginTop: '2px' }}>
-          Pronostica hasta 1h antes del partido
-        </p>
+      <div style={{ marginBottom: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div>
+          <h2 style={{ fontFamily: 'var(--font-fun)', fontSize: '24px' }}>Rondas y Partidos</h2>
+          <p style={{ fontSize: '11px', fontWeight: '800', color: 'var(--yellow)', textTransform: 'uppercase', letterSpacing: '1px', marginTop: '2px' }}>
+            Pronostica hasta 1h antes del partido
+          </p>
+        </div>
+        
+        {/* Rules trigger button */}
+        <button
+          onClick={openRulesModal}
+          style={{
+            background: 'rgba(255, 195, 0, 0.1)',
+            border: '2px solid rgba(255, 195, 0, 0.4)',
+            borderRadius: '12px',
+            color: 'var(--yellow)',
+            padding: '8px 12px',
+            fontFamily: 'var(--font-fun)',
+            fontSize: '12px',
+            fontWeight: 'bold',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px',
+            cursor: 'pointer',
+            transition: 'transform 0.15s ease, background 0.15s ease, box-shadow 0.15s ease',
+            boxShadow: '0 4px 12px rgba(255, 195, 0, 0.1)',
+            outline: 'none',
+          }}
+          onMouseDown={(e) => { e.currentTarget.style.transform = 'scale(0.95)'; }}
+          onMouseUp={(e) => { e.currentTarget.style.transform = 'scale(1)'; }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = 'rgba(255, 195, 0, 0.2)';
+            e.currentTarget.style.boxShadow = '0 4px 16px rgba(255, 195, 0, 0.25)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = 'rgba(255, 195, 0, 0.1)';
+            e.currentTarget.style.boxShadow = '0 4px 12px rgba(255, 195, 0, 0.1)';
+            e.currentTarget.style.transform = 'scale(1)';
+          }}
+        >
+          <HelpCircle size={16} />
+          <span>Reglas</span>
+        </button>
       </div>
 
       {/* Filter chips */}
@@ -220,29 +259,37 @@ export const PredictionsHub: React.FC = () => {
                     style={{
                       display: 'flex',
                       justifyContent: 'space-between',
-                      alignItems: 'center',
+                      alignItems: 'flex-start',
                       fontSize: '10px',
                       fontWeight: '800',
                       color: 'var(--text-muted)',
                       marginBottom: '12px'
                     }}
                   >
-                    <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                      <Calendar size={12} /> {formattedDate} hs
-                    </span>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                      <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        <Calendar size={12} /> {formattedDate} hs
+                      </span>
+                      {match.venue && (
+                        <span style={{ display: 'flex', alignItems: 'center', gap: '4px', color: 'rgba(255, 255, 255, 0.45)', fontWeight: '500' }}>
+                          <MapPin size={11} style={{ color: 'var(--yellow)' }} />
+                          {match.venue.city ? `${match.venue.name} (${match.venue.city})` : match.venue.name}
+                        </span>
+                      )}
+                    </div>
                     
                     {match.status === 'FT' ? (
                       <span className="badge badge-done">Finalizado</span>
                     ) : match.isClosed ? (
-                      <span className="badge badge-locked" style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
+                      <span className="badge badge-locked" style={{ display: 'flex', alignItems: 'center', gap: '3px', marginTop: '2px' }}>
                         <Lock size={10} /> Cerrado
                       </span>
                     ) : match.prediction ? (
-                      <span className="badge badge-open" style={{ borderColor: 'var(--yellow)', color: 'var(--yellow)', background: 'rgba(255, 203, 71, 0.12)' }}>
+                      <span className="badge badge-open" style={{ borderColor: 'var(--yellow)', color: 'var(--yellow)', background: 'rgba(255, 203, 71, 0.12)', marginTop: '2px' }}>
                         ✓ Guardado
                       </span>
                     ) : (
-                      <span className="badge badge-open">Abierto</span>
+                      <span className="badge badge-open" style={{ marginTop: '2px' }}>Abierto</span>
                     )}
                   </div>
 

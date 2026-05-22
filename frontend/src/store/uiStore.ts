@@ -16,12 +16,15 @@ interface UIState {
   predictMatchTeamB: string | null;
   predictMatchFlagA: string | null;
   predictMatchFlagB: string | null;
+  rulesModalOpen: boolean;
   
   setActiveTab: (tab: TabType) => void;
   showToast: (message: string, type?: 'success' | 'error' | 'info') => void;
   hideToast: () => void;
   openPredictModal: (match: { id: string; teamA: string; teamB: string; flagA: string; flagB: string }) => void;
   closePredictModal: () => void;
+  openRulesModal: () => void;
+  closeRulesModal: () => void;
 }
 
 let toastTimeoutId: any = null;
@@ -34,6 +37,7 @@ export const useUIStore = create<UIState>((set, get) => ({
   predictMatchTeamB: null,
   predictMatchFlagA: null,
   predictMatchFlagB: null,
+  rulesModalOpen: false,
 
   setActiveTab: (activeTab) => set({ activeTab }),
 
@@ -74,4 +78,7 @@ export const useUIStore = create<UIState>((set, get) => ({
     predictMatchFlagA: null,
     predictMatchFlagB: null
   }),
+
+  openRulesModal: () => set({ rulesModalOpen: true }),
+  closeRulesModal: () => set({ rulesModalOpen: false }),
 }));
