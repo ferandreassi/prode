@@ -759,9 +759,14 @@ app.get('/images/*', async (c) => {
 
     const headers = new Headers();
     object.writeHttpMetadata(headers);
-    headers.set('etag', object.httpEtag);
+    
+    const headersRecord: Record<string, string> = {};
+    headers.forEach((value, key) => {
+      headersRecord[key] = value;
+    });
+    headersRecord['etag'] = object.httpEtag;
 
-    return new Response(object.body, { headers });
+    return c.body(object.body, 200, headersRecord);
 
   } catch (err: any) {
     return c.json({ error: 'Error al servir imagen: ' + err.message }, 500);
