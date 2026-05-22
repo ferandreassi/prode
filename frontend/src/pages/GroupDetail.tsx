@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { api } from '@/services/api';
+import { api, getAvatarUrl } from '@/services/api';
 import { useAuthStore } from '@/store/authStore';
 import { useUIStore } from '@/store/uiStore';
 import { ArrowLeft, Settings, UserMinus, ShieldAlert, Edit, Trash2, Lock, Eye, Copy, Check } from 'lucide-react';
@@ -331,7 +331,7 @@ export const GroupDetail: React.FC<GroupDetailProps> = ({ groupId, onBack }) => 
                       <div className="lb-left">
                         <span className="lb-rank">#{rank}</span>
                         <img 
-                          src={member.avatarUrl} 
+                          src={getAvatarUrl(member.avatarUrl)} 
                           alt={member.nickname} 
                           className="avatar" 
                           width={32} 
@@ -528,7 +528,7 @@ export const GroupDetail: React.FC<GroupDetailProps> = ({ groupId, onBack }) => 
                           >
                             <div className="lb-left" style={{ width: '50%' }}>
                               <img 
-                                src={item.avatarUrl} 
+                                src={getAvatarUrl(item.avatarUrl)} 
                                 alt={item.nickname} 
                                 className="avatar" 
                                 width={24} 
@@ -608,7 +608,7 @@ export const GroupDetail: React.FC<GroupDetailProps> = ({ groupId, onBack }) => 
                     >
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                         <img 
-                          src={member.avatarUrl} 
+                          src={getAvatarUrl(member.avatarUrl)} 
                           alt={member.nickname} 
                           className="avatar" 
                           width={24} 

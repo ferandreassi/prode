@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { api } from '@/services/api';
+import { api, getAvatarUrl } from '@/services/api';
 import { useAuthStore } from '@/store/authStore';
 import { useUIStore } from '@/store/uiStore';
 import { ArrowRight, Gamepad2, Calendar } from 'lucide-react';
@@ -117,7 +117,7 @@ export const Dashboard: React.FC = () => {
           </p>
         </div>
         <img 
-          src={user?.avatarUrl} 
+          src={getAvatarUrl(user?.avatarUrl)} 
           alt="Avatar" 
           className="avatar" 
           width={50} 

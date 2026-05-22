@@ -1,6 +1,15 @@
 export const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8787';
 export const DATA_BASE = import.meta.env.VITE_DATA_BASE || 'http://localhost:8788';
 
+export const getAvatarUrl = (url: string | null | undefined): string => {
+  if (!url) return '';
+  if (url.startsWith('http://') || url.startsWith('https://')) {
+    return url;
+  }
+  const path = url.startsWith('/') ? url : `/${url}`;
+  return `${API_BASE}${path}`;
+};
+
 interface FetchOptions extends RequestInit {
   params?: Record<string, string>;
 }
