@@ -87,11 +87,6 @@ async function performSync(env: Env) {
   // 2. Save complete list to KV
   await env.DATA_KV.put('wc2026:fixtures', JSON.stringify(fixtures));
 
-  // Save each fixture individually to KV for detail lookup
-  for (const fixture of fixtures) {
-    await env.DATA_KV.put(`wc2026:fixture:${fixture.id}`, JSON.stringify(fixture));
-  }
-
   // Save last sync timestamp
   await env.DATA_KV.put('wc2026:last_sync', Date.now().toString());
 

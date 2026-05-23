@@ -677,9 +677,12 @@ app.post('/predictions', authRequired, async (c) => {
     // Get fixture date from KV to validate deadline
     let fixtureDate: string | null = null;
     try {
-      const kvFixture = await c.env.DATA_KV.get(`wc2026:fixture:${fId}`, 'json') as any;
-      if (kvFixture && kvFixture.date) {
-        fixtureDate = kvFixture.date;
+      const kvFixtures = await c.env.DATA_KV.get('wc2026:fixtures', 'json') as any[] | null;
+      if (kvFixtures) {
+        const fixture = kvFixtures.find((f: any) => (f.id || f.fixtureId) === fId);
+        if (fixture && fixture.date) {
+          fixtureDate = fixture.date;
+        }
       }
     } catch (e) {
       console.error('Error al obtener partido desde KV:', e);
