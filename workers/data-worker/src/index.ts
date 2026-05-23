@@ -45,7 +45,16 @@ app.get('/fixtures', async (c) => {
 app.get('/fixtures/:id', async (c) => {
   try {
     const id = parseInt(c.req.param('id'));
-    const fixture = await c.env.DATA_KV.get(`wc2026:fixture:${id}`, 'json');
+    if (isNaN(id)) {
+      return c.json({ error: 'ID de partido inválido.' }, 400);
+    }
+
+    const fixturesData = await c.env.DATA_KV.get('wc2026:fixtures', 'json') as any[] | null;
+    if (!fixturesData) {
+      return c.json({ error: 'Datos de partidos no disponibles aún. Esperá la próxima sincronización.' }, 503);
+    }
+
+    const fixture = fixturesData.find((f: any) => (f.id || f.fixtureId) === id);
 
     if (!fixture) {
       return c.json({ error: 'Partido no encontrado.' }, 404);
