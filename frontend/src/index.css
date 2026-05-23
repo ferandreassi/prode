@@ -1005,3 +1005,15 @@ body::after {
     transform: translateY(-20px) rotate(180deg);
   }
 }
+
+/* PWA Banner Micro-animations */
+@keyframes slideUp {
+  0% {
+    transform: translateY(120px) scale(0.96);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}

@@ -11,6 +11,7 @@ import { AdminDashboard } from '@/pages/AdminDashboard';
 import { Navbar } from '@/components/Navbar';
 import { PredictModal } from '@/components/PredictModal';
 import { RulesModal } from '@/components/RulesModal';
+import { PWAInstallBanner } from '@/components/PWAInstallBanner';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -138,6 +139,9 @@ const AppContent: React.FC = () => {
 
       {/* Scoring Rules Modal */}
       <RulesModal />
+
+      {/* Custom PWA Install Banner */}
+      <PWAInstallBanner />
 
       {/* Bottom Sticky Mobile Navbar */}
       <Navbar />
