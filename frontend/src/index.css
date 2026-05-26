@@ -199,7 +199,7 @@ body::after {
   pointer-events: none;
 }
 
-.card:active {
+.card:active:not(:has(input, textarea, select, form)) {
   transform: scale(0.98) translateY(1px);
   background: var(--card-hover);
   border-color: var(--border-hover);
@@ -355,6 +355,8 @@ body::after {
   outline: none;
   transition: all 0.25s ease;
   box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.25);
+  user-select: text;
+  -webkit-user-select: text;
 }
 
 .input::placeholder {

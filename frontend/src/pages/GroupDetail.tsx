@@ -686,7 +686,8 @@ export const GroupDetail: React.FC<GroupDetailProps> = ({ groupId, onBack }) => 
                         Modificar URL de Imagen
                       </label>
                       <input
-                        type="url"
+                        type="text"
+                        inputMode="url"
                         className="input"
                         value={editImageUrl}
                         onChange={(e) => setEditImageUrl(e.target.value)}

@@ -309,7 +309,8 @@ export const GroupsHub: React.FC = () => {
                   URL de Imagen (Opcional)
                 </label>
                 <input
-                  type="url"
+                  type="text"
+                  inputMode="url"
                   className="input"
                   placeholder="Ej. https://url-imagen.png"
                   value={imageUrl}
