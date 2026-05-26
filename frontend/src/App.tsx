@@ -1,4 +1,5 @@
-import { QueryClient, QueryClientProvider, QueryCache, MutationCache } from '@tanstack/react-query';
+import { QueryClientProvider } from '@tanstack/react-query';
+import { queryClient } from './queryClient';
 import { useAuthStore } from '@/store/authStore';
 import { useUIStore } from '@/store/uiStore';
 import { Splash } from '@/pages/Splash';
@@ -13,27 +14,6 @@ import { PredictModal } from '@/components/PredictModal';
 import { RulesModal } from '@/components/RulesModal';
 import { PWAInstallBanner } from '@/components/PWAInstallBanner';
 
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      refetchOnWindowFocus: false,
-      retry: false, // Never retry automatically on failure (prevents infinite loop)
-      staleTime: 5 * 60 * 1000, // Cache results for 5 minutes to avoid constant server polling
-    },
-  },
-  queryCache: new QueryCache({
-    onError: (error) => {
-      console.error('API Query Error:', error);
-      useUIStore.getState().showToast('No se pudo ejecutar la acción', 'error');
-    },
-  }),
-  mutationCache: new MutationCache({
-    onError: (error) => {
-      console.error('API Mutation Error:', error);
-      useUIStore.getState().showToast('No se pudo ejecutar la acción', 'error');
-    },
-  }),
-});
 
 const AppContent: React.FC = () => {
   const { isAuthenticated, isLoading, user } = useAuthStore();

@@ -1,5 +1,7 @@
 import { create } from 'zustand';
 import { api } from '@/services/api';
+import { queryClient } from '@/queryClient';
+import { useUIStore } from '@/store/uiStore';
 
 export interface User {
   id: string;
@@ -25,7 +27,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   token: localStorage.getItem('prode_u_jwt'),
   isAuthenticated: false,
   isLoading: true,
-
+  
   login: async (nickname, password) => {
     try {
       const res = await api.post('/auth/login', { nickname, password });
@@ -66,6 +68,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   logout: () => {
     localStorage.removeItem('prode_u_jwt');
+    queryClient.clear();
+    useUIStore.getState().setActiveTab('dashboard');
     set({
       token: null,
       user: null,
@@ -101,6 +105,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     } catch (error) {
       console.error('Error checking auth, logging out:', error);
       localStorage.removeItem('prode_u_jwt');
+      queryClient.clear();
+      useUIStore.getState().setActiveTab('dashboard');
       set({
         token: null,
         user: null,
