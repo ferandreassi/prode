@@ -1,8 +1,11 @@
 import React, { useEffect } from 'react';
 import { useAuthStore } from '@/store/authStore';
+import { useBrand } from '@/branding/useBrand';
+import { BrandLogo } from '@/branding/BrandLogo';
 
 export const Splash: React.FC = () => {
   const checkAuth = useAuthStore(state => state.checkAuth);
+  const { activeBrand } = useBrand();
 
   useEffect(() => {
     let active = true;
@@ -44,16 +47,16 @@ export const Splash: React.FC = () => {
         <div className="dot" style={{ width: '10px', height: '10px', background: 'var(--green)', right: '15%', bottom: '25%', animationDelay: '0.5s' }}></div>
       </div>
 
-      <div className="mascot" style={{ fontSize: '72px', filter: 'drop-shadow(0 8px 16px rgba(0,0,0,0.3))' }}>
-        ⚽️🏆
+      <div style={{ marginBottom: '10px' }}>
+        <BrandLogo brand={activeBrand} size={110} />
       </div>
 
       <div>
-        <h1 className="title-fun" style={{ fontSize: '48px', color: 'var(--white)' }}>
-          PRODE
+        <h1 className="title-fun" style={{ fontSize: '46px', color: 'var(--white)', letterSpacing: '1px', fontWeight: 900 }}>
+          {activeBrand.name}
         </h1>
-        <p className="subtitle-fun" style={{ fontSize: '13px', marginTop: '6px', color: 'var(--yellow)' }}>
-          Mundial 2026
+        <p className="subtitle-fun" style={{ fontSize: '12px', marginTop: '6px', color: 'var(--cyan)', letterSpacing: '3px' }}>
+          {activeBrand.tagline}
         </p>
       </div>
 
@@ -72,12 +75,12 @@ export const Splash: React.FC = () => {
             width: '40px',
             height: '40px',
             borderRadius: '50%',
-            border: '4px solid rgba(255,255,255,0.1)',
-            borderTopColor: 'var(--yellow)',
+            border: '4px solid rgba(255,255,255,0.06)',
+            borderTopColor: 'var(--cyan)',
             animation: 'spin 1s linear infinite'
           }}
         ></div>
-        <span style={{ fontSize: '12px', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '2px', opacity: 0.6 }}>
+        <span style={{ fontSize: '11px', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '2px', opacity: 0.55 }}>
           Conectando...
         </span>
       </div>
