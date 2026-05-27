@@ -28,11 +28,11 @@ run_in_terminal_tab() {
 
 # 1. Levantar API Worker
 echo -e "\033[1;32m🚀 Levantando api-worker (Puerto 8787) en una nueva pestaña...\033[0m"
-run_in_terminal_tab "$ROOT_DIR/workers/api-worker" "npx wrangler dev --port 8787" "⚙️ API WORKER"
+run_in_terminal_tab "$ROOT_DIR/workers/api-worker" "npx wrangler dev --port 8787 --inspector-port 9229" "⚙️ API WORKER"
 
 # 2. Levantar Data Worker
 echo -e "\033[1;32m🚀 Levantando data-worker (Puerto 8788) en una nueva pestaña...\033[0m"
-run_in_terminal_tab "$ROOT_DIR/workers/data-worker" "npx wrangler dev --port 8788" "🗄️ DATA WORKER"
+run_in_terminal_tab "$ROOT_DIR/workers/data-worker" "npx wrangler dev --port 8788 --inspector-port 9230" "🗄️ DATA WORKER"
 
 # 3. Levantar Frontend Client
 echo -e "\033[1;32m🚀 Levantando frontend de Vite (Puerto 5173) en una nueva pestaña...\033[0m"

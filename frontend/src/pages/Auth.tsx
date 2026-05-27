@@ -2,10 +2,13 @@ import React, { useState } from 'react';
 import { useAuthStore } from '@/store/authStore';
 import { useUIStore } from '@/store/uiStore';
 import { LogIn, UserPlus, AlertCircle } from 'lucide-react';
+import { useBrand } from '@/branding/useBrand';
+import { BrandLogo } from '@/branding/BrandLogo';
 
 export const Auth: React.FC = () => {
   const { login, register } = useAuthStore();
   const { showToast } = useUIStore();
+  const { activeBrand } = useBrand();
   const [isLoginTab, setIsLoginTab] = useState<boolean>(true);
   const [nickname, setNickname] = useState<string>('');
   const [password, setPassword] = useState<string>('');
@@ -71,10 +74,12 @@ export const Auth: React.FC = () => {
           textAlign: 'center'
         }}
       >
-        <span className="mascot" style={{ fontSize: '54px', marginBottom: '8px' }}>⚽👾</span>
-        <h1 className="title-fun" style={{ fontSize: '38px' }}>PRODE</h1>
-        <p className="subtitle-fun" style={{ fontSize: '11px', color: 'var(--yellow)', marginTop: '2px' }}>
-          La app de predicciones definitiva
+        <div style={{ marginBottom: '8px' }}>
+          <BrandLogo brand={activeBrand} size={70} />
+        </div>
+        <h1 className="title-fun" style={{ fontSize: '38px', letterSpacing: '1px', fontWeight: 900 }}>{activeBrand.name}</h1>
+        <p className="subtitle-fun" style={{ fontSize: '11px', color: 'var(--cyan)', marginTop: '2px', letterSpacing: '3px' }}>
+          {activeBrand.tagline}
         </p>
       </div>
 
@@ -186,8 +191,8 @@ export const Auth: React.FC = () => {
         </form>
       </div>
 
-      <div style={{ textAlign: 'center', marginTop: '16px', fontSize: '11px', color: 'var(--text-muted)' }}>
-        Mundial de futbol 2026 • v 0.1.1
+      <div style={{ textAlign: 'center', marginTop: '16px', fontSize: '11px', color: 'var(--text-muted)', letterSpacing: '1px' }}>
+        {activeBrand.footerText}
       </div>
     </div>
   );

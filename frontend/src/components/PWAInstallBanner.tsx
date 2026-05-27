@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
 import { usePWAInstall } from '@/services/usePWAInstall';
+import { useBrand } from '@/branding/useBrand';
+import { BrandLogo } from '@/branding/BrandLogo';
 
 export const PWAInstallBanner: React.FC = () => {
   const { isInstallableAndroid, isInstallableIOS, handleInstallClick } = usePWAInstall();
   const [isVisible, setIsVisible] = useState(true);
+  const { activeBrand } = useBrand();
 
   // If the user closed it, or it is not installable on either platform, render nothing
   if (!isVisible || (!isInstallableAndroid && !isInstallableIOS)) {
@@ -39,16 +42,15 @@ export const PWAInstallBanner: React.FC = () => {
               width: '42px',
               height: '42px',
               borderRadius: '12px',
-              background: 'linear-gradient(135deg, var(--purple) 0%, #170d37 100%)',
+              background: 'linear-gradient(135deg, var(--purple) 0%, var(--cyan) 100%)',
               border: '1px solid rgba(255, 255, 255, 0.15)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              fontSize: '22px',
-              boxShadow: '0 0 10px rgba(157, 78, 221, 0.2)'
+              boxShadow: '0 0 10px rgba(0, 229, 255, 0.15)'
             }}
           >
-            ⚽
+            <BrandLogo brand={activeBrand} size={24} />
           </div>
           <div>
             <h4 
@@ -63,7 +65,7 @@ export const PWAInstallBanner: React.FC = () => {
                 textShadow: '0 0 8px rgba(0, 240, 255, 0.3)'
               }}
             >
-              Instalar PRODE App
+              Instalar {activeBrand.shortName} App
             </h4>
             <p 
               style={{

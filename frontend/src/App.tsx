@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { queryClient } from './queryClient';
 import { useAuthStore } from '@/store/authStore';
@@ -13,11 +14,17 @@ import { Navbar } from '@/components/Navbar';
 import { PredictModal } from '@/components/PredictModal';
 import { RulesModal } from '@/components/RulesModal';
 import { PWAInstallBanner } from '@/components/PWAInstallBanner';
+import { useBrand } from '@/branding/useBrand';
 
 
 const AppContent: React.FC = () => {
   const { isAuthenticated, isLoading, user } = useAuthStore();
   const { activeTab, toast } = useUIStore();
+  const { activeBrand, initializeBrand } = useBrand();
+
+  useEffect(() => {
+    initializeBrand();
+  }, []);
 
   // 1. Show Animated Splash on initial load
   if (isLoading) {
@@ -54,7 +61,7 @@ const AppContent: React.FC = () => {
   const getHeaderTitle = () => {
     switch (activeTab) {
       case 'dashboard':
-        return 'PRODE';
+        return activeBrand.shortName.toUpperCase();
       case 'predictions':
         return 'PRONÓSTICOS';
       case 'groups':
@@ -64,7 +71,7 @@ const AppContent: React.FC = () => {
       case 'admin':
         return 'ADMINISTRACIÓN';
       default:
-        return 'PRODE';
+        return activeBrand.shortName.toUpperCase();
     }
   };
 
