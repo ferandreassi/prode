@@ -18,7 +18,7 @@ export const PWAInstallBanner: React.FC = () => {
       className="pwa-banner"
       style={{
         position: 'absolute',
-        bottom: '84px', // Sits perfectly above the bottom Sticky Navbar (which is 74px tall)
+        bottom: 'calc(84px + env(safe-area-inset-bottom, 0px))', // Sits perfectly above the bottom Sticky Navbar (which accounts for safe areas)
         left: '14px',
         right: '14px',
         background: 'rgba(13, 7, 34, 0.92)',
