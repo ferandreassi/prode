@@ -109,6 +109,16 @@ export const Profile: React.FC = () => {
 
   // Handle R2 avatar image upload (Auto-saves to database immediately)
   const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const cleanNickname = nickname.trim();
+    if (!cleanNickname) {
+      showToast('El nickname no puede estar vacío.', 'error');
+      return;
+    }
+    if (cleanNickname.length < 3 || cleanNickname.length > 24) {
+      showToast('El nickname debe tener entre 3 y 24 caracteres.', 'error');
+      return;
+    }
+
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -127,7 +137,7 @@ export const Profile: React.FC = () => {
       
       // Auto-save the new avatar URL in D1 database immediately!
       const updateRes = await api.put('/users/me', {
-        nickname: nickname.trim() || user?.nickname || '',
+        nickname: cleanNickname,
         avatarUrl: res.url
       });
       
@@ -151,12 +161,17 @@ export const Profile: React.FC = () => {
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!nickname.trim()) {
+    const cleanNickname = nickname.trim();
+    if (!cleanNickname) {
       showToast('El nickname no puede estar vacío.', 'error');
       return;
     }
+    if (cleanNickname.length < 3 || cleanNickname.length > 24) {
+      showToast('El nickname debe tener entre 3 y 24 caracteres.', 'error');
+      return;
+    }
     saveMutation.mutate({
-      nickname: nickname.trim(),
+      nickname: cleanNickname,
       avatarUrl: avatarUrl
     });
   };

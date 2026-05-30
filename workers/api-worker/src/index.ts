@@ -65,8 +65,8 @@ app.post('/auth/register', async (c) => {
       return c.json({ error: 'Faltan campos requeridos (nickname, password).' }, 400);
     }
 
-    if (nickname.length < 3 || nickname.length > 20) {
-      return c.json({ error: 'El nickname debe tener entre 3 y 20 caracteres.' }, 400);
+    if (nickname.length < 3 || nickname.length > 24) {
+      return c.json({ error: 'El nickname debe tener entre 3 y 24 caracteres.' }, 400);
     }
     if (password.length < 6) {
       return c.json({ error: 'La contraseña debe tener al menos 6 caracteres.' }, 400);
@@ -177,6 +177,10 @@ app.put('/users/me', authRequired, async (c) => {
 
     if (!nickname) {
       return c.json({ error: 'El nickname no puede estar vacío.' }, 400);
+    }
+
+    if (nickname.length < 3 || nickname.length > 24) {
+      return c.json({ error: 'El nickname debe tener entre 3 y 24 caracteres.' }, 400);
     }
 
     // Check if new nickname is taken by someone else
