@@ -21,8 +21,8 @@ export const Auth: React.FC = () => {
       setErrorMsg('Por favor completa todos los campos.');
       return;
     }
-    if (nickname.length < 3 || nickname.length > 20) {
-      setErrorMsg('El nickname debe tener entre 3 y 20 caracteres.');
+    if (nickname.length < 3 || nickname.length > 24) {
+      setErrorMsg('El nickname debe tener entre 3 y 24 caracteres.');
       return;
     }
     if (password.length < 6) {
