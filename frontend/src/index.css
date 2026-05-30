@@ -36,13 +36,23 @@
 }
 
 /* Prevent double-click to zoom on touch devices */
-html, body, button, input, select, textarea, a, .card, .btn, .tab, .chip, .nav-item {
+html,
+body,
+button,
+input,
+select,
+textarea,
+a,
+.card,
+.btn,
+.tab,
+.chip,
+.nav-item {
   touch-action: manipulation;
 }
 
 body {
   background: radial-gradient(circle at center, #1b0a3c 0%, #070313 100%);
-  min-height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -122,7 +132,9 @@ body::after {
 }
 
 @media (max-width: 450px) {
-  html, body {
+
+  html,
+  body {
     height: 100vh;
     height: 100dvh;
     overflow: hidden;
@@ -360,7 +372,8 @@ body::after {
   padding: 14px 16px;
   color: #fff;
   font-family: var(--font-body);
-  font-size: 16px; /* 16px prevents automatic zoom-on-focus on iOS devices */
+  font-size: 16px;
+  /* 16px prevents automatic zoom-on-focus on iOS devices */
   font-weight: 700;
   outline: none;
   transition: all 0.25s ease;
@@ -1024,6 +1037,7 @@ body::after {
     transform: translateY(120px) scale(0.96);
     opacity: 0;
   }
+
   100% {
     transform: translateY(0) scale(1);
     opacity: 1;
