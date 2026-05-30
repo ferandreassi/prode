@@ -995,6 +995,44 @@ app.get('/admin/analytics/users', authRequired, adminRequired, async (c) => {
   }
 });
 
+// PUT /admin/users/:userId/password (Admin changes user password)
+app.put('/admin/users/:userId/password', authRequired, adminRequired, async (c) => {
+  try {
+    const userId = c.req.param('userId');
+    const { newPassword } = await c.req.json();
+
+    if (!newPassword) {
+      return c.json({ error: 'La nueva contraseña es requerida.' }, 400);
+    }
+
+    if (newPassword.length < 6) {
+      return c.json({ error: 'La nueva contraseña debe tener al menos 6 caracteres.' }, 400);
+    }
+
+    // Verificar si el usuario existe
+    const user: any = await c.env.DB.prepare(
+      'SELECT id, nickname FROM users WHERE id = ?'
+    ).bind(userId).first();
+
+    if (!user) {
+      return c.json({ error: 'Usuario no encontrado.' }, 404);
+    }
+
+    // Hashear la contraseña con PBKDF2
+    const newPasswordHash = await hashPassword(newPassword);
+    const now = Date.now();
+
+    // Actualizar base de datos
+    await c.env.DB.prepare(
+      'UPDATE users SET password_hash = ?, updated_at = ? WHERE id = ?'
+    ).bind(newPasswordHash, now, userId).run();
+
+    return c.json({ message: `Contraseña de @${user.nickname} actualizada con éxito.` });
+  } catch (err: any) {
+    return c.json({ error: 'Error al cambiar contraseña de usuario: ' + err.message }, 500);
+  }
+});
+
 // GET /admin/analytics/groups (Paginated and searchable groups/leagues list)
 app.get('/admin/analytics/groups', authRequired, adminRequired, async (c) => {
   try {

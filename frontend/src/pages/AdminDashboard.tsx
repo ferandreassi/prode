@@ -14,20 +14,25 @@ import {
   Activity, 
   Calendar, 
   Award,
-  Clock
+  Clock,
+  Key,
+  X
 } from 'lucide-react';
 import { TeamFlag } from '@/components/TeamFlag';
 
 type AdminSubTab = 'overview' | 'users' | 'groups' | 'fixtures';
 
 export const AdminDashboard: React.FC = () => {
-  const { setActiveTab } = useUIStore();
+  const { setActiveTab, showToast } = useUIStore();
   const [subTab, setSubTab] = useState<AdminSubTab>('overview');
 
   // Users Tab local state
   const [userSearch, setUserSearch] = useState('');
   const [userPage, setUserPage] = useState(1);
   const [userSortBy, setUserSortBy] = useState('createdAt');
+  const [selectedUser, setSelectedUser] = useState<{ id: string; nickname: string } | null>(null);
+  const [newPassword, setNewPassword] = useState('');
+  const [changingPassword, setChangingPassword] = useState(false);
 
   // Groups Tab local state
   const [groupSearch, setGroupSearch] = useState('');
@@ -464,6 +469,31 @@ export const AdminDashboard: React.FC = () => {
                         >
                           {item.totalPoints} pts
                         </div>
+                        <button
+                          onClick={() => {
+                            setSelectedUser({ id: item.id, nickname: item.nickname });
+                            setNewPassword('');
+                          }}
+                          style={{
+                            background: 'rgba(0, 240, 255, 0.05)',
+                            border: '1px solid rgba(0, 240, 255, 0.2)',
+                            borderRadius: '8px',
+                            padding: '6px 10px',
+                            color: 'var(--cyan)',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '4px',
+                            fontSize: '10px',
+                            fontWeight: '800',
+                            fontFamily: 'var(--font-fun)',
+                            textTransform: 'uppercase',
+                            transition: 'all 0.2s ease',
+                          }}
+                          className="wiggle"
+                        >
+                          <Key size={11} /> Clave
+                        </button>
                       </div>
                     </div>
                   ))
@@ -752,6 +782,103 @@ export const AdminDashboard: React.FC = () => {
         )}
 
       </div>
+
+      {/* Password Reset Modal */}
+      {selectedUser && (
+        <div className="modal active" onClick={() => setSelectedUser(null)}>
+          <div
+            className="modal-body"
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              borderRadius: '28px 28px 0 0',
+              borderTop: '3px solid var(--cyan)',
+              boxShadow: '0 -10px 40px rgba(0, 240, 255, 0.15)',
+              paddingBottom: 'calc(28px + env(safe-area-inset-bottom, 0px))',
+            }}
+          >
+            <div className="modal-top">
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <div style={{
+                  background: 'rgba(0, 240, 255, 0.12)',
+                  border: '1px solid rgba(0, 240, 255, 0.3)',
+                  borderRadius: '10px',
+                  padding: '6px',
+                  color: 'var(--cyan)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}>
+                  <Key size={18} />
+                </div>
+                <div>
+                  <h3 style={{ fontFamily: 'var(--font-fun)', fontSize: '18px', margin: 0, textShadow: '0 0 10px rgba(0, 240, 255, 0.3)' }}>
+                    Cambiar Clave
+                  </h3>
+                  <span style={{ fontSize: '10px', fontWeight: '800', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                    Usuario: @{selectedUser.nickname}
+                  </span>
+                </div>
+              </div>
+              <button className="close-btn" onClick={() => setSelectedUser(null)}>
+                <X size={18} />
+              </button>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', zIndex: 1, position: 'relative' }}>
+              <p style={{ fontSize: '11px', color: 'var(--text-muted)', lineHeight: '1.4' }}>
+                Ingresa la nueva contraseña para el usuario. Esta acción sobrescribirá la contraseña anterior de manera inmediata. El usuario deberá iniciar sesión con la nueva credencial.
+              </p>
+
+              <div>
+                <label style={{ fontSize: '10px', fontWeight: '800', textTransform: 'uppercase', color: 'var(--text-muted)', display: 'block', marginBottom: '6px' }}>
+                  Nueva Contraseña (mínimo 6 caracteres)
+                </label>
+                <input
+                  type="password"
+                  placeholder="Ingrese nueva contraseña..."
+                  className="input"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  style={{ fontSize: '14px', height: '44px' }}
+                />
+              </div>
+
+              <div style={{ display: 'flex', gap: '10px', marginTop: '8px' }}>
+                <button
+                  className="btn"
+                  style={{ background: 'rgba(255,255,255,0.05)', borderColor: 'rgba(255,255,255,0.1)', flex: 1 }}
+                  onClick={() => setSelectedUser(null)}
+                >
+                  Cancelar
+                </button>
+                <button
+                  className="btn btn-blue"
+                  style={{ flex: 2 }}
+                  disabled={changingPassword || newPassword.length < 6}
+                  onClick={async () => {
+                    if (newPassword.length < 6) return;
+                    setChangingPassword(true);
+                    try {
+                      await api.put(`/admin/users/${selectedUser.id}/password`, {
+                        newPassword
+                      });
+                      showToast(`Clave de @${selectedUser.nickname} actualizada con éxito.`, 'success');
+                      setSelectedUser(null);
+                    } catch (err: any) {
+                      const errMsg = err.response?.data?.error || err.message || 'Error al actualizar contraseña.';
+                      showToast(errMsg, 'error');
+                    } finally {
+                      setChangingPassword(false);
+                    }
+                  }}
+                >
+                  {changingPassword ? 'Actualizando...' : 'Confirmar Clave'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
