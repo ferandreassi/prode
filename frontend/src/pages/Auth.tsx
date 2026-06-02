@@ -62,7 +62,8 @@ export const Auth: React.FC = () => {
         background: 'var(--screen-gradient)',
         justifyContent: 'center',
         padding: '20px',
-        overflowY: 'auto'
+        overflowY: 'auto',
+        minHeight: '100vh',
       }}
     >
       <div
