@@ -10,7 +10,8 @@ export default {
     try {
       const url = new URL(request.url);
       if (url.pathname === '/sync') {
-        const stats = await performSync(env);
+        const force = url.searchParams.get('force') === 'true';
+        const stats = await performSync(env, force);
         return new Response(JSON.stringify({ status: 'success', stats }), {
           headers: { 'Content-Type': 'application/json' }
         });
@@ -27,12 +28,12 @@ export default {
   // Cron trigger scheduled handler
   async scheduled(event: ScheduledEvent, env: Env, ctx: ExecutionContext): Promise<void> {
     console.log(`Cron triggered at ${new Date(event.scheduledTime).toISOString()}`);
-    ctx.waitUntil(performSync(env));
+    ctx.waitUntil(performSync(env, false));
   }
 };
 
 // Main Sync Logic
-async function performSync(env: Env) {
+async function performSync(env: Env, force: boolean = false) {
   console.log('Starting sync from API-Football...');
   let fixtures: any[] = [];
 
@@ -90,15 +91,41 @@ async function performSync(env: Env) {
   // Save last sync timestamp
   await env.DATA_KV.put('wc2026:last_sync', Date.now().toString());
 
-  // 3. Process finished matches to grade user predictions in D1 SQLite
+  // 3. Load cache of already graded fixtures unless force recalculation is active
+  let gradedFixtures: Record<string, { home: number; away: number }> = {};
+  if (!force) {
+    try {
+      const cached = await env.DATA_KV.get('wc2026:graded_fixtures', 'json') as any;
+      if (cached) {
+        gradedFixtures = cached;
+      }
+    } catch (cacheErr) {
+      console.error('Error reading wc2026:graded_fixtures cache from KV:', cacheErr);
+    }
+  }
+
+  // 4. Process finished matches to grade user predictions in D1 SQLite
   let gradedCount = 0;
   const finishedFixtures = fixtures.filter(f => f.status === 'FT' || f.status === 'AET' || f.status === 'PEN');
+  const d1Statements: any[] = [];
+  const updatedGradedFixtures = { ...gradedFixtures };
+  let cacheUpdated = false;
 
   for (const fixture of finishedFixtures) {
     const homeActual = fixture.goals.home;
     const awayActual = fixture.goals.away;
 
     if (homeActual === null || awayActual === null) continue;
+
+    // Skip if fixture is already graded and actual score hasn't changed
+    if (!force) {
+      const cached = gradedFixtures[fixture.id];
+      if (cached && cached.home === homeActual && cached.away === awayActual) {
+        continue;
+      }
+    }
+
+    console.log(`Grading match ${fixture.id}: ${fixture.homeTeam.name} vs ${fixture.awayTeam.name} (${homeActual} - ${awayActual})`);
 
     // Fetch all predictions for this finished match
     const { results: preds } = await env.DB.prepare(
@@ -118,18 +145,40 @@ async function performSync(env: Env) {
       const scoreId = `${pred.user_id}:${fixture.id}`;
       const now = Date.now();
 
-      // Insert or Update the calculated score in D1
-      await env.DB.prepare(`
-        INSERT INTO scores (id, user_id, fixture_id, points, score_type, calculated_at)
-        VALUES (?, ?, ?, ?, ?, ?)
-        ON CONFLICT(user_id, fixture_id) DO UPDATE SET
-          points = excluded.points,
-          score_type = excluded.score_type,
-          calculated_at = excluded.calculated_at
-      `).bind(scoreId, pred.user_id, fixture.id, score.points, score.type, now).run();
+      // Build statement for batch D1 execution
+      d1Statements.push(
+        env.DB.prepare(`
+          INSERT INTO scores (id, user_id, fixture_id, points, score_type, calculated_at)
+          VALUES (?, ?, ?, ?, ?, ?)
+          ON CONFLICT(user_id, fixture_id) DO UPDATE SET
+            points = excluded.points,
+            score_type = excluded.score_type,
+            calculated_at = excluded.calculated_at
+        `).bind(scoreId, pred.user_id, fixture.id, score.points, score.type, now)
+      );
 
       gradedCount++;
     }
+
+    // Mark fixture as graded with the processed score
+    updatedGradedFixtures[fixture.id] = { home: homeActual, away: awayActual };
+    cacheUpdated = true;
+  }
+
+  // Execute batch writes in chunks of 100 to stay within Cloudflare D1 limits
+  if (d1Statements.length > 0) {
+    console.log(`Executing batch D1 update for ${d1Statements.length} prediction scores...`);
+    const chunkSize = 100;
+    for (let i = 0; i < d1Statements.length; i += chunkSize) {
+      const chunk = d1Statements.slice(i, i + chunkSize);
+      await env.DB.batch(chunk);
+    }
+  }
+
+  // Save the updated cache back to KV
+  if (cacheUpdated) {
+    await env.DATA_KV.put('wc2026:graded_fixtures', JSON.stringify(updatedGradedFixtures));
+    console.log('Saved updated graded_fixtures cache to KV.');
   }
 
   console.log(`Sync complete. Graded ${gradedCount} predictions.`);
@@ -137,7 +186,7 @@ async function performSync(env: Env) {
 }
 
 // Prediction Points Calculator
-function calculatePoints(
+export function calculatePoints(
   prediction: { home: number; away: number },
   result: { home: number; away: number }
 ): { points: number; type: string } {
