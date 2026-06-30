@@ -13,6 +13,7 @@ interface Fixture {
   homeTeam: { name: string; flag: string; code: string };
   awayTeam: { name: string; flag: string; code: string };
   goals: { home: number | null; away: number | null };
+  penalty?: { home: number | null; away: number | null } | null;
   venue?: { name: string; city: string } | null;
 }
 
@@ -106,7 +107,7 @@ export const PredictionsHub: React.FC = () => {
       return match.status === 'NS' && !match.prediction;
     }
     if (filter === 'jugados') {
-      return match.status === 'FT';
+      return match.status === 'FT' || match.status === 'AET' || match.status === 'PEN';
     }
     if (filter === 'pronosticados') {
       return !!match.prediction;
@@ -238,7 +239,7 @@ export const PredictionsHub: React.FC = () => {
 
               // Check points if match finished
               let pointsDisplay = null;
-              if (match.status === 'FT' && match.prediction && match.goals.home !== null && match.goals.away !== null) {
+              if ((match.status === 'FT' || match.status === 'AET' || match.status === 'PEN') && match.prediction && match.goals.home !== null && match.goals.away !== null) {
                 const pred = { homeGoals: match.prediction.homeGoals, awayGoals: match.prediction.awayGoals };
                 const actual = { homeGoals: match.goals.home, awayGoals: match.goals.away };
                 pointsDisplay = calculatePoints(pred, actual);
@@ -250,7 +251,7 @@ export const PredictionsHub: React.FC = () => {
                   className="card"
                   style={{
                     padding: '16px',
-                    background: match.status === 'FT' ? 'rgba(255,255,255,0.04)' : 'var(--card)',
+                    background: ['FT', 'AET', 'PEN'].includes(match.status) ? 'rgba(255,255,255,0.04)' : 'var(--card)',
                     border: match.prediction ? '2px solid rgba(0, 214, 143, 0.25)' : '2px solid var(--border)'
                   }}
                 >
@@ -278,8 +279,10 @@ export const PredictionsHub: React.FC = () => {
                       )}
                     </div>
                     
-                    {match.status === 'FT' ? (
-                      <span className="badge badge-done">Finalizado</span>
+                    {['FT', 'AET', 'PEN'].includes(match.status) ? (
+                      <span className="badge badge-done">
+                        {match.status === 'PEN' ? 'Finalizado (PEN)' : match.status === 'AET' ? 'Finalizado (ET)' : 'Finalizado'}
+                      </span>
                     ) : match.isClosed ? (
                       <span className="badge badge-locked" style={{ display: 'flex', alignItems: 'center', gap: '3px', marginTop: '2px' }}>
                         <Lock size={10} /> Cerrado
@@ -312,11 +315,18 @@ export const PredictionsHub: React.FC = () => {
 
                     {/* Score display */}
                     <div style={{ display: 'flex', justifyContent: 'center', width: '24%' }}>
-                      {match.status === 'FT' ? (
-                        <div className="score-box" style={{ background: 'rgba(0,0,0,0.2)', padding: '4px 10px', borderRadius: '8px' }}>
-                          <span className="score-val" style={{ color: 'var(--white)' }}>{match.goals.home}</span>
-                          <span className="score-dash">-</span>
-                          <span className="score-val" style={{ color: 'var(--white)' }}>{match.goals.away}</span>
+                      {['FT', 'AET', 'PEN'].includes(match.status) ? (
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                          <div className="score-box" style={{ background: 'rgba(0,0,0,0.2)', padding: '4px 10px', borderRadius: '8px' }}>
+                            <span className="score-val" style={{ color: 'var(--white)' }}>{match.goals.home}</span>
+                            <span className="score-dash">-</span>
+                            <span className="score-val" style={{ color: 'var(--white)' }}>{match.goals.away}</span>
+                          </div>
+                          {match.status === 'PEN' && match.penalty && (
+                            <span style={{ fontSize: '10px', color: 'var(--yellow)', marginTop: '2px', fontWeight: 'bold' }}>
+                              ({match.penalty.home} - {match.penalty.away} Pen)
+                            </span>
+                          )}
                         </div>
                       ) : (
                         <span style={{ fontFamily: 'var(--font-fun)', fontSize: '13px', color: 'rgba(255,255,255,0.2)' }}>VS</span>
@@ -362,7 +372,7 @@ export const PredictionsHub: React.FC = () => {
                       </span>
                     )}
 
-                    {match.status === 'FT' ? (
+                    {['FT', 'AET', 'PEN'].includes(match.status) ? (
                       pointsDisplay ? (
                         <span className={`pts-tag ${pointsDisplay.class}`}>
                           {pointsDisplay.label}

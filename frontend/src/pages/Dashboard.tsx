@@ -22,6 +22,7 @@ interface Fixture {
   homeTeam: { name: string; flag: string; code: string };
   awayTeam: { name: string; flag: string; code: string };
   goals: { home: number | null; away: number | null };
+  penalty?: { home: number | null; away: number | null } | null;
   venue?: { name: string; city: string } | null;
 }
 
@@ -96,7 +97,7 @@ export const Dashboard: React.FC = () => {
     }
   };
 
-  const totalPredictions = fixturesRes?.filter(f => f.status === 'FT').length || 0;
+  const totalPredictions = fixturesRes?.filter(f => f.status === 'FT' || f.status === 'AET' || f.status === 'PEN').length || 0;
 
   return (
     <div className="scroll">
