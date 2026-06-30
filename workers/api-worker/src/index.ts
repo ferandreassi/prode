@@ -1144,7 +1144,8 @@ app.get('/admin/analytics/fixtures', authRequired, adminRequired, async (c) => {
           home: f.teams?.home || f.homeTeam,
           away: f.teams?.away || f.awayTeam
         },
-        score: f.score || { home: f.homeGoals, away: f.awayGoals },
+        score: { home: f.goals?.home, away: f.goals?.away },
+        penalty: f.penalty || null,
         analytics: {
           totalPredictions: total,
           avgHomeGoals: parseFloat((fStats.avgHomeGoals || 0).toFixed(1)),

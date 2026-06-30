@@ -707,9 +707,16 @@ export const AdminDashboard: React.FC = () => {
                           <span style={{ fontSize: '11px', fontWeight: '800', textTransform: 'uppercase' }}>{fixture.teams.home.name}</span>
                         </div>
 
-                        {fixture.status === 'FT' ? (
-                          <div style={{ background: 'rgba(255,255,255,0.05)', padding: '2px 8px', borderRadius: '6px', fontSize: '12px', fontWeight: '800', fontFamily: 'var(--font-fun)' }}>
-                            {fixture.score.home} - {fixture.score.away}
+                        {['FT', 'AET', 'PEN'].includes(fixture.status) ? (
+                          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                            <div style={{ background: 'rgba(255,255,255,0.05)', padding: '2px 8px', borderRadius: '6px', fontSize: '12px', fontWeight: '800', fontFamily: 'var(--font-fun)' }}>
+                              {fixture.score.home} - {fixture.score.away}
+                            </div>
+                            {fixture.status === 'PEN' && fixture.penalty && (
+                              <span style={{ fontSize: '9px', color: 'var(--yellow)', marginTop: '2px', fontWeight: 'bold' }}>
+                                ({fixture.penalty.home} - {fixture.penalty.away} Pen)
+                              </span>
+                            )}
                           </div>
                         ) : (
                           <span style={{ fontSize: '8px', color: 'var(--text-muted)', fontWeight: '800', textTransform: 'uppercase' }}>VS</span>

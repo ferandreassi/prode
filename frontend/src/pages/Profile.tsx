@@ -14,6 +14,7 @@ interface Fixture {
   homeTeam: { name: string; flag: string; code: string };
   awayTeam: { name: string; flag: string; code: string };
   goals: { home: number | null; away: number | null };
+  penalty?: { home: number | null; away: number | null } | null;
   venue?: { name: string; city: string } | null;
 }
 
@@ -74,7 +75,7 @@ export const Profile: React.FC = () => {
   if (predictionsRes && fixturesRes) {
     predictionsRes.forEach(pred => {
       const match = fixturesRes.find(f => f.id === pred.fixtureId);
-      if (match && match.status === 'FT' && match.goals.home !== null && match.goals.away !== null) {
+      if (match && (match.status === 'FT' || match.status === 'AET' || match.status === 'PEN') && match.goals.home !== null && match.goals.away !== null) {
         playedCount++;
         const p = { homeGoals: pred.homeGoals, awayGoals: pred.awayGoals };
         const a = { homeGoals: match.goals.home, awayGoals: match.goals.away };
