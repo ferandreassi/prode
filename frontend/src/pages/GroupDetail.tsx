@@ -47,6 +47,7 @@ interface Fixture {
   homeTeam: { name: string; flag: string; code: string };
   awayTeam: { name: string; flag: string; code: string };
   goals: { home: number | null; away: number | null };
+  penalty?: { home: number | null; away: number | null } | null;
   venue?: { name: string; city: string } | null;
 }
 
@@ -392,17 +393,22 @@ export const GroupDetail: React.FC<GroupDetailProps> = ({ groupId, onBack }) => 
                         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '75%', overflow: 'hidden' }}>
                           <TeamFlag flag={match.homeTeam.flag} className="flag-sm" style={{ fontSize: '20px' }} />
                           <span style={{ fontFamily: 'var(--font-fun)', fontSize: '12px', width: '25px', textAlign: 'center' }}>
-                            {match.status === 'FT' ? match.goals.home : '-'}
+                            {['FT', 'AET', 'PEN'].includes(match.status) ? match.goals.home : '-'}
                           </span>
                           <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.3)' }}>vs</span>
                           <span style={{ fontFamily: 'var(--font-fun)', fontSize: '12px', width: '25px', textAlign: 'center' }}>
-                            {match.status === 'FT' ? match.goals.away : '-'}
+                            {['FT', 'AET', 'PEN'].includes(match.status) ? match.goals.away : '-'}
                           </span>
                           <TeamFlag flag={match.awayTeam.flag} className="flag-sm" style={{ fontSize: '20px' }} />
                           
                           <span style={{ fontSize: '11px', color: 'var(--text-muted)', marginLeft: '8px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                             {match.homeTeam.code} vs {match.awayTeam.code}
                           </span>
+                          {match.status === 'PEN' && match.penalty && (
+                            <span style={{ fontSize: '9px', color: 'var(--yellow)', fontWeight: 'bold', marginLeft: '6px' }}>
+                              ({match.penalty.home}-{match.penalty.away} Pen)
+                            </span>
+                          )}
                         </div>
 
                         <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
@@ -469,10 +475,17 @@ export const GroupDetail: React.FC<GroupDetailProps> = ({ groupId, onBack }) => 
                             <span style={{ fontFamily: 'var(--font-fun)', fontSize: '12px', textAlign: 'center', marginTop: '2px' }}>{match.homeTeam.name}</span>
                           </div>
 
-                          <div className="score-box" style={{ background: 'rgba(0,0,0,0.3)' }}>
-                            <span className="score-val" style={{ fontSize: '20px' }}>{match.goals.home ?? '-'}</span>
-                            <span className="score-dash">:</span>
-                            <span className="score-val" style={{ fontSize: '20px' }}>{match.goals.away ?? '-'}</span>
+                          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                            <div className="score-box" style={{ background: 'rgba(0,0,0,0.3)' }}>
+                              <span className="score-val" style={{ fontSize: '20px' }}>{match.goals.home ?? '-'}</span>
+                              <span className="score-dash">:</span>
+                              <span className="score-val" style={{ fontSize: '20px' }}>{match.goals.away ?? '-'}</span>
+                            </div>
+                            {match.status === 'PEN' && match.penalty && (
+                              <span style={{ fontSize: '11px', color: 'var(--yellow)', marginTop: '4px', fontWeight: 'bold' }}>
+                                ({match.penalty.home} - {match.penalty.away} Pen)
+                              </span>
+                            )}
                           </div>
 
                           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '35%' }}>
@@ -561,7 +574,7 @@ export const GroupDetail: React.FC<GroupDetailProps> = ({ groupId, onBack }) => 
                                 <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontStyle: 'italic' }}>Sin pronóstico</span>
                               )}
 
-                              {match?.status === 'FT' && item.predHome !== null && (
+                              {['FT', 'AET', 'PEN'].includes(match?.status || '') && item.predHome !== null && (
                                 <span 
                                   style={{
                                     fontSize: '9px',

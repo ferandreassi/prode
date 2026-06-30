@@ -69,6 +69,10 @@ async function performSync(env: Env, force: boolean = false) {
             home: item.goals.home,
             away: item.goals.away
           },
+          penalty: item.score?.penalty ? {
+            home: item.score.penalty.home,
+            away: item.score.penalty.away
+          } : null,
           venue: item.fixture.venue ? {
             name: item.fixture.venue.name,
             city: item.fixture.venue.city
